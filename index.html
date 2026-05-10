@@ -7,26 +7,27 @@
 <title>PengepulManager</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0f0e0c;--surface:#1a1916;--surface2:#242220;--border:#2e2c28;--border2:#3d3a34;--amber:#f5a623;--amber-dim:#c4831a;--amber-glow:rgba(245,166,35,0.12);--amber-glow2:rgba(245,166,35,0.06);--green:#5cb87a;--red:#e05c5c;--blue:#5b9bd5;--text:#f0ece4;--text2:#a09890;--text3:#665f58;--radius:10px;--radius-lg:16px;}
+:root{--bg:#0f0e0c;--surface:#1a1916;--surface2:#242220;--border:#2e2c28;--border2:#3d3a34;--amber:#f5a623;--amber-glow:rgba(245,166,35,0.12);--amber-glow2:rgba(245,166,35,0.06);--green:#5cb87a;--red:#e05c5c;--blue:#5b9bd5;--text:#f0ece4;--text2:#a09890;--text3:#665f58;--radius:10px;--radius-lg:16px;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;min-height:100vh;overflow-x:hidden;}
-#ov{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:16px;transition:opacity 0.4s;}
-#ov.h{opacity:0;pointer-events:none;}
+#ov{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:16px;}
+#ov.h{display:none;}
 .ll{font-family:'Syne',sans-serif;font-weight:800;font-size:24px;color:var(--amber);}
 .ll span{color:var(--text2);font-weight:400;}
 .lb{width:160px;height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
 .lbf{height:100%;background:var(--amber);border-radius:2px;animation:lb 1.2s ease-in-out infinite;}
 @keyframes lb{0%{width:0%;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0%;margin-left:100%}}
-.lt{font-size:11px;color:var(--text3);}
+.lt{font-size:11px;color:var(--text3);max-width:300px;text-align:center;}
+.err-box{background:rgba(224,92,92,0.1);border:1px solid rgba(224,92,92,0.3);color:var(--red);padding:12px 16px;border-radius:10px;font-size:12px;max-width:320px;text-align:center;}
+.retry-btn{padding:10px 20px;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;cursor:pointer;border:none;background:var(--amber);color:#0f0e0c;margin-top:8px;}
 .sd{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;margin-right:6px;}
 .sd.sy{background:var(--amber);animation:pu 1s infinite;}
 .sd.er{background:var(--red);}
 @keyframes pu{0%,100%{opacity:1}50%{opacity:0.3}}
 .ah{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-.al{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--amber);letter-spacing:-0.5px;}
+.al{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--amber);}
 .al span{color:var(--text2);font-weight:400;}
 .hr{display:flex;align-items:center;gap:12px;}
-.hs{font-size:11px;color:var(--text3);display:flex;align-items:center;}
 .hd{color:var(--text3);font-size:11px;}
 .nt{background:var(--surface);border-bottom:1px solid var(--border);display:flex;padding:0 24px;gap:2px;overflow-x:auto;}
 .nb{padding:12px 16px;font-family:'Syne',sans-serif;font-size:12px;font-weight:600;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all 0.2s;letter-spacing:0.5px;text-transform:uppercase;}
@@ -34,9 +35,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;font
 .nb.ac{color:var(--amber);border-bottom-color:var(--amber);}
 .mn{padding:24px;max-width:960px;margin:0 auto;}
 .sc{display:none;}.sc.ac{display:block;}
-.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:24px;}
-.sc2{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;position:relative;overflow:hidden;transition:border-color 0.2s;}
-.sc2:hover{border-color:var(--border2);}
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:24px;}
+.sc2{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;position:relative;overflow:hidden;}
 .sc2::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--amber);opacity:0.4;}
 .sc2.g::before{background:var(--green);}
 .sc2.b::before{background:var(--blue);}
@@ -56,8 +56,8 @@ input:focus,select:focus{border-color:var(--amber);box-shadow:0 0 0 3px var(--am
 select option{background:var(--surface2);}
 .bt{padding:10px 20px;border-radius:var(--radius);font-family:'Syne',sans-serif;font-weight:700;font-size:12px;letter-spacing:0.5px;text-transform:uppercase;cursor:pointer;border:none;transition:all 0.15s;}
 .bp{background:var(--amber);color:#0f0e0c;}
-.bp:hover{background:#f7b84a;transform:translateY(-1px);}
-.bp:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+.bp:hover{background:#f7b84a;}
+.bp:disabled{opacity:0.5;cursor:not-allowed;}
 .bs{background:transparent;border:1px solid var(--border2);color:var(--text2);}
 .bs:hover{border-color:var(--amber);color:var(--amber);}
 .bsm{padding:6px 12px;font-size:11px;}
@@ -72,18 +72,16 @@ th{font-family:'Syne',sans-serif;font-size:10px;text-transform:uppercase;letter-
 td{padding:11px 12px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:middle;}
 tr:last-child td{border-bottom:none;}
 tr:hover td{background:var(--amber-glow2);}
-.bg2{display:inline-block;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600;font-family:'Syne',sans-serif;letter-spacing:0.5px;text-transform:uppercase;}
+.bg2{display:inline-block;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600;font-family:'Syne',sans-serif;text-transform:uppercase;}
 .bm{background:rgba(92,184,122,0.15);color:var(--green);}
 .bk{background:rgba(224,92,92,0.15);color:var(--red);}
 .bpr{background:var(--amber-glow);color:var(--amber);}
 .bj{background:rgba(91,155,213,0.15);color:var(--blue);}
-.ae{padding:12px 16px;border-radius:var(--radius);font-size:12px;margin-bottom:16px;}
-.aer{background:rgba(224,92,92,0.1);border:1px solid rgba(224,92,92,0.3);color:var(--red);}
-.st{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--text);margin-bottom:6px;letter-spacing:-0.5px;}
+.ae{padding:12px 16px;border-radius:var(--radius);font-size:12px;margin-bottom:16px;background:rgba(224,92,92,0.1);border:1px solid rgba(224,92,92,0.3);color:var(--red);}
+.st{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--text);margin-bottom:6px;}
 .ss{color:var(--text3);font-size:12px;margin-bottom:24px;}
-.kl{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
-.ki{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;transition:border-color 0.2s;}
-.ki:hover{border-color:var(--amber-dim);}
+.kl{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+.ki{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;}
 .kn{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--text);margin-bottom:4px;}
 .kt{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;}
 .kv{font-size:28px;font-weight:500;color:var(--amber);line-height:1;margin-bottom:4px;}
@@ -91,20 +89,37 @@ tr:hover td{background:var(--amber-glow2);}
 .pp{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-top:14px;display:none;}
 .pp.sh{display:block;}
 .ppt{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:12px;font-family:'Syne',sans-serif;}
-.ppr{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);}
+.ppr{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);}
 .ppr:last-child{border-bottom:none;}
 .pm{color:var(--red);}
 .pp2{color:var(--green);}
 .es{text-align:center;padding:40px;color:var(--text3);}
-#toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:12px 18px;font-size:13px;color:var(--text);z-index:9999;transform:translateY(80px);opacity:0;transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);max-width:300px;}
+#toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:12px 18px;font-size:13px;color:var(--text);z-index:9999;transform:translateY(80px);opacity:0;transition:all 0.3s;max-width:300px;}
 #toast.sh{transform:translateY(0);opacity:1;}
 .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
 @media(max-width:600px){.mn{padding:16px;}.cg{grid-template-columns:repeat(2,1fr);}.fg{grid-template-columns:1fr;}.rr{grid-template-columns:1fr;}.hd{display:none;}}
 </style>
 </head>
 <body>
-<div id="ov"><div class="ll">Pengepul<span>Manager</span></div><div class="lb"><div class="lbf"></div></div><div class="lt" id="lt">Menghubungkan ke cloud...</div></div>
-<div class="ah"><div class="al">Pengepul<span>Manager</span></div><div class="hr"><div class="hs"><span class="sd" id="sd"></span><span id="sl2" style="font-size:11px;color:var(--text3)">Terhubung</span></div><div class="hd" id="hd"></div></div></div>
+
+<div id="ov">
+  <div class="ll">Pengepul<span>Manager</span></div>
+  <div class="lb"><div class="lbf"></div></div>
+  <div class="lt" id="lt">Menghubungkan ke cloud...</div>
+  <div id="errBox" style="display:none;">
+    <div class="err-box" id="errMsg"></div>
+    <button class="retry-btn" onclick="loadAll()">Coba Lagi</button>
+  </div>
+</div>
+
+<div class="ah">
+  <div class="al">Pengepul<span>Manager</span></div>
+  <div class="hr">
+    <div style="display:flex;align-items:center;font-size:11px;color:var(--text3)"><span class="sd" id="sd"></span><span id="sl2">Terhubung</span></div>
+    <div class="hd" id="hd"></div>
+  </div>
+</div>
+
 <div class="nt">
   <div class="nb ac" onclick="sw('db')">Dashboard</div>
   <div class="nb" onclick="sw('st')">Stok</div>
@@ -115,305 +130,389 @@ tr:hover td{background:var(--amber-glow2);}
   <div class="nb" onclick="sw('ke')">Penjualan</div>
   <div class="nb" onclick="sw('rw')">Riwayat</div>
 </div>
+
 <div class="mn">
+  <div class="sc ac" id="sc-db">
+    <div class="st">Dashboard</div><div class="ss">Ringkasan stok real-time dari cloud</div>
+    <div class="cg" id="dbc"></div>
+    <div class="pn"><div class="ph"><div class="pt">Aktivitas Terbaru</div></div><div class="pb">
+      <div class="tw"><table><thead><tr><th>Tanggal</th><th>Tipe</th><th>Detail</th><th>Jumlah</th><th>Ket</th></tr></thead><tbody id="dbt"></tbody></table></div>
+    </div></div>
+  </div>
 
-<div class="sc ac" id="sc-db">
-  <div class="st">Dashboard</div><div class="ss">Ringkasan stok real-time dari cloud</div>
-  <div class="cg" id="dbc"></div>
-  <div class="pn"><div class="ph"><div class="pt">Aktivitas Terbaru</div></div><div class="pb"><div class="tw"><table><thead><tr><th>Tanggal</th><th>Tipe</th><th>Detail</th><th>Jumlah</th><th>Ket</th></tr></thead><tbody id="dbt"></tbody></table></div></div></div>
+  <div class="sc" id="sc-st">
+    <div class="st">Stok Saat Ini</div><div class="ss">Real-time dari cloud — sama di semua device</div>
+    <div class="kl" id="stl"></div>
+  </div>
+
+  <div class="sc" id="sc-ma">
+    <div class="st">Bahan Masuk</div><div class="ss">Catat penerimaan ampas basah dari supplier</div>
+    <div class="pn"><div class="ph"><div class="pt">Input Ampas Basah</div></div><div class="pb">
+      <div class="fg">
+        <div class="fg2"><label>Tanggal</label><input type="date" id="maTgl"></div>
+        <div class="fg2"><label>Jumlah (kg)</label><input type="number" id="maJml" placeholder="0" min="0" step="0.1"></div>
+        <div class="fg2"><label>Harga Beli / kg (Rp)</label><input type="number" id="maHrg" placeholder="0"></div>
+        <div class="fg2"><label>Supplier</label><input type="text" id="maSup" placeholder="Nama supplier"></div>
+        <div class="fg2 fu"><label>Keterangan</label><input type="text" id="maKet" placeholder="Opsional"></div>
+      </div>
+      <button class="bt bp" id="bma" onclick="saveMa()">Simpan</button>
+    </div></div>
+  </div>
+
+  <div class="sc" id="sc-pr">
+    <div class="st">Input Produksi</div><div class="ss">Konversi ampas basah → bungkil + minyak spinner</div>
+    <div class="pn"><div class="ph"><div class="pt">Rasio Produksi</div></div><div class="pb">
+      <p style="font-size:11px;color:var(--text3);margin-bottom:12px;">Rasio hasil dari setiap 100 kg ampas basah</p>
+      <div class="rr">
+        <div class="ri"><div class="rl">Bungkil %</div><input type="number" id="rB" value="65" min="0" max="100" step="0.1" onchange="updR()"><div class="rn">% dari input</div></div>
+        <div class="ri"><div class="rl">Spinner %</div><input type="number" id="rS" value="20" min="0" max="100" step="0.1" onchange="updR()"><div class="rn">% dari input</div></div>
+        <div class="ri"><div class="rl">Susut</div><div class="rv" id="rL">15%</div><div class="rn">otomatis</div></div>
+      </div>
+      <button class="bt bs bsm" onclick="saveR()">Simpan Rasio</button>
+    </div></div>
+    <div class="pn"><div class="ph"><div class="pt">Catat Produksi</div></div><div class="pb">
+      <div id="alPr"></div>
+      <div class="fg">
+        <div class="fg2"><label>Tanggal</label><input type="date" id="prTgl"></div>
+        <div class="fg2"><label>Ampas Basah (kg)</label><input type="number" id="prJml" placeholder="0" min="0" step="0.1" oninput="pvPr()"></div>
+        <div class="fg2 fu"><label>Keterangan</label><input type="text" id="prKet" placeholder="Opsional"></div>
+      </div>
+      <div class="pp" id="pvPrEl">
+        <div class="ppt">Preview Stok</div>
+        <div class="ppr"><span>Ampas Basah</span><span class="pm" id="pvA"></span></div>
+        <div class="ppr"><span>Bungkil</span><span class="pp2" id="pvB"></span></div>
+        <div class="ppr"><span>Minyak Spinner</span><span class="pp2" id="pvS"></span></div>
+      </div>
+      <br><button class="bt bp" id="bpr" onclick="savePr()">Proses Produksi</button>
+    </div></div>
+  </div>
+
+  <div class="sc" id="sc-jp">
+    <div class="st">Minyak JP</div><div class="ss">Hasil pengendapan tanpa proses mesin</div>
+    <div class="pn"><div class="ph"><div class="pt">Catat Minyak JP</div></div><div class="pb">
+      <div id="alJp"></div>
+      <div class="fg">
+        <div class="fg2"><label>Tanggal</label><input type="date" id="jpTgl"></div>
+        <div class="fg2"><label>Ampas Diendapkan (kg) — opsional</label><input type="number" id="jpA" placeholder="0" min="0" step="0.1" oninput="pvJp()"></div>
+        <div class="fg2"><label>Minyak JP Didapat (kg)</label><input type="number" id="jpH" placeholder="0" min="0" step="0.1" oninput="pvJp()"></div>
+        <div class="fg2 fu"><label>Keterangan</label><input type="text" id="jpKet" placeholder="Opsional"></div>
+      </div>
+      <div class="pp" id="pvJpEl">
+        <div class="ppt">Preview Stok</div>
+        <div class="ppr"><span>Ampas Basah</span><span class="pm" id="pvJA"></span></div>
+        <div class="ppr"><span>Minyak JP</span><span class="pp2" id="pvJH"></span></div>
+      </div>
+      <br><button class="bt bp" id="bjp" onclick="saveJp()">Simpan</button>
+    </div></div>
+  </div>
+
+  <div class="sc" id="sc-uc">
+    <div class="st">UCO</div><div class="ss">Beli dari supplier, jual tanpa diolah</div>
+    <div class="pn"><div class="ph"><div class="pt">Beli UCO</div></div><div class="pb">
+      <div class="fg">
+        <div class="fg2"><label>Tanggal</label><input type="date" id="ucTgl"></div>
+        <div class="fg2"><label>Jumlah (kg)</label><input type="number" id="ucJml" placeholder="0" min="0" step="0.1"></div>
+        <div class="fg2"><label>Harga Beli / kg (Rp)</label><input type="number" id="ucHrg" placeholder="0"></div>
+        <div class="fg2"><label>Supplier</label><input type="text" id="ucSup" placeholder="Nama supplier"></div>
+      </div>
+      <button class="bt bp" id="buc" onclick="saveUc()">Simpan</button>
+    </div></div>
+    <div class="pn"><div class="ph"><div class="pt">Stok UCO</div><div style="font-size:11px;color:var(--text3)">Target 5.000 kg/bln</div></div><div class="pb">
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Stok UCO</div><div style="font-size:32px;color:var(--amber);font-weight:500;" id="ucD">0 kg</div></div>
+        <div style="flex:1;min-width:180px;"><div style="font-size:10px;color:var(--text3);margin-bottom:6px;">Progress</div><div style="background:var(--bg);border-radius:4px;height:8px;overflow:hidden;"><div id="ucP" style="height:100%;background:var(--amber);border-radius:4px;transition:width 0.4s;width:0%"></div></div><div style="font-size:10px;color:var(--text3);margin-top:4px;" id="ucPL">0 / 5.000 kg</div></div>
+      </div>
+    </div></div>
+  </div>
+
+  <div class="sc" id="sc-ke">
+    <div class="st">Penjualan</div><div class="ss">Catat penjualan semua produk</div>
+    <div class="pn"><div class="ph"><div class="pt">Input Penjualan</div></div><div class="pb">
+      <div id="alKe"></div>
+      <div class="fg">
+        <div class="fg2"><label>Tanggal</label><input type="date" id="keTgl"></div>
+        <div class="fg2"><label>Produk</label><select id="kePrd"><option value="bungkil">Bungkil</option><option value="spinner">Minyak Spinner</option><option value="jp">Minyak JP</option><option value="uco">UCO</option></select></div>
+        <div class="fg2"><label>Jumlah (kg)</label><input type="number" id="keJml" placeholder="0" min="0" step="0.1"></div>
+        <div class="fg2"><label>Harga Jual / kg (Rp)</label><input type="number" id="keHrg" placeholder="0"></div>
+        <div class="fg2"><label>Pembeli</label><input type="text" id="kePmb" placeholder="Nama pembeli"></div>
+        <div class="fg2"><label>Keterangan</label><input type="text" id="keKet" placeholder="Opsional"></div>
+      </div>
+      <button class="bt bp" id="bke" onclick="saveKe()">Simpan Penjualan</button>
+    </div></div>
+  </div>
+
+  <div class="sc" id="sc-rw">
+    <div class="st">Riwayat</div><div class="ss">Semua transaksi tersimpan di cloud</div>
+    <div class="pn"><div class="ph"><div class="pt">Filter</div></div><div class="pb">
+      <div class="row">
+        <select id="fTp" onchange="rdRw()"><option value="">Semua</option><option value="masuk">Bahan Masuk</option><option value="produksi">Produksi</option><option value="jp">Minyak JP</option><option value="uco_masuk">UCO Masuk</option><option value="keluar">Penjualan</option></select>
+        <input type="month" id="fBl" onchange="rdRw()">
+        <button class="bt bs bsm" onclick="expCSV()">Export CSV</button>
+      </div>
+    </div></div>
+    <div class="pn"><div class="pb" style="padding:0;"><div class="tw">
+      <table><thead><tr><th>Tanggal</th><th>Tipe</th><th>Detail</th><th>Jumlah</th><th>Harga/kg</th><th>Total</th><th>Ket</th></tr></thead><tbody id="rwb"></tbody></table>
+    </div></div></div>
+  </div>
 </div>
 
-<div class="sc" id="sc-st">
-  <div class="st">Stok Saat Ini</div><div class="ss">Data real-time — sama di semua device</div>
-  <div class="kl" id="stl"></div>
-</div>
-
-<div class="sc" id="sc-ma">
-  <div class="st">Bahan Masuk</div><div class="ss">Catat penerimaan ampas basah dari supplier</div>
-  <div class="pn"><div class="ph"><div class="pt">Input Ampas Basah Masuk</div></div><div class="pb">
-    <div class="fg">
-      <div class="fg2"><label>Tanggal</label><input type="date" id="maTgl"></div>
-      <div class="fg2"><label>Jumlah (kg)</label><input type="number" id="maJml" placeholder="0" min="0" step="0.1"></div>
-      <div class="fg2"><label>Harga Beli / kg (Rp)</label><input type="number" id="maHrg" placeholder="0"></div>
-      <div class="fg2"><label>Supplier</label><input type="text" id="maSup" placeholder="Nama supplier"></div>
-      <div class="fg2 fu"><label>Keterangan</label><input type="text" id="maKet" placeholder="Opsional"></div>
-    </div>
-    <button class="bt bp" id="bma" onclick="saveMa()">Simpan</button>
-  </div></div>
-</div>
-
-<div class="sc" id="sc-pr">
-  <div class="st">Input Produksi</div><div class="ss">Konversi ampas basah → bungkil + minyak spinner</div>
-  <div class="pn"><div class="ph"><div class="pt">Rasio Produksi</div></div><div class="pb">
-    <p style="font-size:11px;color:var(--text3);margin-bottom:12px;">Rasio hasil dari setiap 100 kg ampas basah yang diproses</p>
-    <div class="rr">
-      <div class="ri"><div class="rl">Bungkil %</div><input type="number" id="rB" value="65" min="0" max="100" step="0.1" onchange="updR()"><div class="rn">% dari input</div></div>
-      <div class="ri"><div class="rl">Minyak Spinner %</div><input type="number" id="rS" value="20" min="0" max="100" step="0.1" onchange="updR()"><div class="rn">% dari input</div></div>
-      <div class="ri"><div class="rl">Susut / Losses</div><div class="rv" id="rL">15%</div><div class="rn">otomatis</div></div>
-    </div>
-    <button class="bt bs bsm" onclick="saveR()">Simpan Rasio ke Cloud</button>
-  </div></div>
-  <div class="pn"><div class="ph"><div class="pt">Catat Produksi</div></div><div class="pb">
-    <div id="alPr"></div>
-    <div class="fg">
-      <div class="fg2"><label>Tanggal</label><input type="date" id="prTgl"></div>
-      <div class="fg2"><label>Ampas Basah Diproses (kg)</label><input type="number" id="prJml" placeholder="0" min="0" step="0.1" oninput="pvPr()"></div>
-      <div class="fg2 fu"><label>Keterangan</label><input type="text" id="prKet" placeholder="Opsional"></div>
-    </div>
-    <div class="pp" id="pvPrEl">
-      <div class="ppt">Preview Perubahan Stok</div>
-      <div class="ppr"><span>Ampas Basah</span><span class="pm" id="pvA"></span></div>
-      <div class="ppr"><span>Bungkil</span><span class="pp2" id="pvB"></span></div>
-      <div class="ppr"><span>Minyak Spinner</span><span class="pp2" id="pvS"></span></div>
-    </div>
-    <br><button class="bt bp" id="bpr" onclick="savePr()">Proses Produksi</button>
-  </div></div>
-</div>
-
-<div class="sc" id="sc-jp">
-  <div class="st">Minyak JP</div><div class="ss">Minyak hasil pengendapan (tanpa proses mesin)</div>
-  <div class="pn"><div class="ph"><div class="pt">Catat Perolehan Minyak JP</div></div><div class="pb">
-    <div id="alJp"></div>
-    <div class="fg">
-      <div class="fg2"><label>Tanggal</label><input type="date" id="jpTgl"></div>
-      <div class="fg2"><label>Ampas Basah Diendapkan (kg) — opsional</label><input type="number" id="jpA" placeholder="0" min="0" step="0.1" oninput="pvJp()"></div>
-      <div class="fg2"><label>Minyak JP Didapat (kg)</label><input type="number" id="jpH" placeholder="0" min="0" step="0.1" oninput="pvJp()"></div>
-      <div class="fg2 fu"><label>Keterangan</label><input type="text" id="jpKet" placeholder="Opsional"></div>
-    </div>
-    <div class="pp" id="pvJpEl">
-      <div class="ppt">Preview Perubahan Stok</div>
-      <div class="ppr"><span>Ampas Basah</span><span class="pm" id="pvJA"></span></div>
-      <div class="ppr"><span>Minyak JP</span><span class="pp2" id="pvJH"></span></div>
-    </div>
-    <br><button class="bt bp" id="bjp" onclick="saveJp()">Simpan</button>
-  </div></div>
-</div>
-
-<div class="sc" id="sc-uc">
-  <div class="st">UCO (Used Cooking Oil)</div><div class="ss">Beli dari supplier, simpan, jual tanpa diolah</div>
-  <div class="pn"><div class="ph"><div class="pt">Beli UCO dari Supplier</div></div><div class="pb">
-    <div class="fg">
-      <div class="fg2"><label>Tanggal</label><input type="date" id="ucTgl"></div>
-      <div class="fg2"><label>Jumlah (kg)</label><input type="number" id="ucJml" placeholder="0" min="0" step="0.1"></div>
-      <div class="fg2"><label>Harga Beli / kg (Rp)</label><input type="number" id="ucHrg" placeholder="0"></div>
-      <div class="fg2"><label>Supplier</label><input type="text" id="ucSup" placeholder="Nama supplier"></div>
-    </div>
-    <button class="bt bp" id="buc" onclick="saveUc()">Simpan Pembelian UCO</button>
-  </div></div>
-  <div class="pn"><div class="ph"><div class="pt">Stok UCO</div><div style="font-size:11px;color:var(--text3)">Target: 5.000 kg/bln</div></div><div class="pb">
-    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
-      <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Stok UCO</div><div style="font-size:32px;color:var(--amber);font-weight:500;" id="ucD">0 kg</div></div>
-      <div style="flex:1;min-width:200px;"><div style="font-size:10px;color:var(--text3);margin-bottom:6px;">Progress target bulanan</div><div style="background:var(--bg);border-radius:4px;height:8px;overflow:hidden;"><div id="ucP" style="height:100%;background:var(--amber);border-radius:4px;transition:width 0.4s;width:0%"></div></div><div style="font-size:10px;color:var(--text3);margin-top:4px;" id="ucPL">0 / 5.000 kg</div></div>
-    </div>
-  </div></div>
-</div>
-
-<div class="sc" id="sc-ke">
-  <div class="st">Penjualan / Stok Keluar</div><div class="ss">Catat penjualan semua produk</div>
-  <div class="pn"><div class="ph"><div class="pt">Input Penjualan</div></div><div class="pb">
-    <div id="alKe"></div>
-    <div class="fg">
-      <div class="fg2"><label>Tanggal</label><input type="date" id="keTgl"></div>
-      <div class="fg2"><label>Produk</label><select id="kePrd"><option value="bungkil">Bungkil (Ampas Kering)</option><option value="spinner">Minyak Spinner</option><option value="jp">Minyak JP</option><option value="uco">UCO</option></select></div>
-      <div class="fg2"><label>Jumlah (kg)</label><input type="number" id="keJml" placeholder="0" min="0" step="0.1"></div>
-      <div class="fg2"><label>Harga Jual / kg (Rp)</label><input type="number" id="keHrg" placeholder="0"></div>
-      <div class="fg2"><label>Pembeli</label><input type="text" id="kePmb" placeholder="Nama pembeli"></div>
-      <div class="fg2"><label>Keterangan</label><input type="text" id="keKet" placeholder="Opsional"></div>
-    </div>
-    <button class="bt bp" id="bke" onclick="saveKe()">Simpan Penjualan</button>
-  </div></div>
-</div>
-
-<div class="sc" id="sc-rw">
-  <div class="st">Riwayat Transaksi</div><div class="ss">Semua data tersimpan di cloud</div>
-  <div class="pn"><div class="ph"><div class="pt">Filter</div></div><div class="pb">
-    <div class="row">
-      <select id="fTp" onchange="rdRw()"><option value="">Semua Tipe</option><option value="masuk">Bahan Masuk</option><option value="produksi">Produksi</option><option value="jp">Minyak JP</option><option value="uco_masuk">UCO Masuk</option><option value="keluar">Penjualan</option></select>
-      <input type="month" id="fBl" onchange="rdRw()">
-      <button class="bt bs bsm" onclick="expCSV()">Export CSV</button>
-    </div>
-  </div></div>
-  <div class="pn"><div class="pb" style="padding:0;"><div class="tw"><table><thead><tr><th>Tanggal</th><th>Tipe</th><th>Detail</th><th>Jumlah</th><th>Harga/kg</th><th>Total</th><th>Ket</th></tr></thead><tbody id="rwb"></tbody></table></div></div></div>
-</div>
-
-</div>
 <div id="toast"></div>
+
 <script>
-const BASE='https://rdtietygkdmjjyizrgvy.supabase.co/rest/v1';
-const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkdGlldHlna2Rtamp5aXpyZ3Z5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyNTc5MzksImV4cCI6MjA5MzgzMzkzOX0.KlzvstYmyfVgKLkynpX2Aw0SyTZK02tF9BXRABU_XRQ';
-const H={'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY,'Prefer':'return=representation'};
-async function dbG(t,p=''){const r=await fetch(`${BASE}/${t}?${p}`,{headers:H});if(!r.ok)throw new Error(await r.text());return r.json();}
-async function dbI(t,b){const r=await fetch(`${BASE}/${t}`,{method:'POST',headers:H,body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());return r.json();}
-async function dbU(t,m,b){const r=await fetch(`${BASE}/${t}?${m}`,{method:'PATCH',headers:H,body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());return r.json();}
+const BASE = 'https://rdtietygkdmjjyizrgvy.supabase.co/rest/v1';
+const KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkdGlldHlna2Rtamp5aXpyZ3Z5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyNTc5MzksImV4cCI6MjA5MzgzMzkzOX0.KlzvstYmyfVgKLkynpX2Aw0SyTZK02tF9BXRABU_XRQ';
+const H = {
+  'Content-Type': 'application/json',
+  'apikey': KEY,
+  'Authorization': 'Bearer ' + KEY,
+  'Prefer': 'return=representation'
+};
 
-let D={stok:{ampas_basah:0,bungkil:0,spinner:0,jp:0,uco:0},rasio:{bungkil:65,spinner:20},tx:[]};
-const fmt=n=>parseFloat(n||0).toLocaleString(‘id-ID’,{maximumFractionDigits:1});
-const fRp=n=>‘Rp ‘+parseInt(n||0).toLocaleString(‘id-ID’);
-const tdy=()=>new Date().toISOString().slice(0,10);
-function toast(msg,t=‘ok’){const e=document.getElementById(‘toast’);e.textContent=(t===‘ok’?‘✓ ‘:t===‘er’?‘✗ ‘:‘⚠ ‘)+msg;e.style.borderColor=t===‘ok’?‘var(–green)’:t===‘er’?‘var(–red)’:‘var(–amber)’;e.classList.add(‘sh’);setTimeout(()=>e.classList.remove(‘sh’),3000);}
-function setAl(id,msg){const e=document.getElementById(id);if(e)e.innerHTML=msg?`<div class="ae aer">${msg}</div>`:’’;}
-function setSy(v){const d=document.getElementById(‘sd’),l=document.getElementById(‘sl2’);if(v===‘sy’){d.className=‘sd sy’;l.textContent=‘Menyimpan…’;}else if(v===‘ok’){d.className=‘sd’;l.textContent=‘Tersinkron’;}else{d.className=‘sd er’;l.textContent=‘Error’;}}
-function setOv(s,t){const e=document.getElementById(‘ov’);if(t)document.getElementById(‘lt’).textContent=t;s?e.classList.remove(‘h’):e.classList.add(‘h’);}
-const BG={masuk:’<span class="bg2 bm">Masuk</span>’,produksi:’<span class="bg2 bpr">Produksi</span>’,jp:’<span class="bg2 bj">JP</span>’,uco_masuk:’<span class="bg2 bm">UCO Masuk</span>’,keluar:’<span class="bg2 bk">Jual</span>’};
+let D = {
+  stok: { ampas_basah:0, bungkil:0, spinner:0, jp:0, uco:0 },
+  rasio: { bungkil:65, spinner:20 },
+  tx: []
+};
 
-async function dbUS(upd){for(const[k,v]of Object.entries(upd)){await dbU(‘stok’,`id=eq.${k}`,{jumlah:v});D.stok[k]=v;}}
-async function dbAT(tx){const r=await dbI(‘transaksi’,tx);D.tx.unshift(Array.isArray(r)?{…tx,…r[0]}:{…tx,…r});}
+const fmt   = n => parseFloat(n||0).toLocaleString('id-ID', {maximumFractionDigits:1});
+const fmtRp = n => 'Rp ' + parseInt(n||0).toLocaleString('id-ID');
+const tdy   = () => new Date().toISOString().slice(0,10);
 
-async function loadAll(){
-setOv(true,‘Memuat data dari cloud…’);
-try{
-const[sd,rd,td]=await Promise.all([
-dbG(‘stok’,‘select=id,jumlah’),
-dbG(‘rasio’,‘select=id,nilai’),
-dbG(‘transaksi’,‘select=*&order=created_at.desc&limit=500’)
-]);
-sd.forEach(r=>{if(r.id in D.stok)D.stok[r.id]=parseFloat(r.jumlah)||0;});
-rd.forEach(r=>{if(r.id in D.rasio)D.rasio[r.id]=parseFloat(r.nilai)||0;});
-D.tx=td.map(t=>({id:t.id,tipe:t.tipe,tanggal:t.tanggal,jumlah:parseFloat(t.jumlah)||0,harga:parseFloat(t.harga)||0,detail:t.detail||’’,ket:t.ket||’’}));
-setSy(‘ok’);setOv(false);rdDb();ldR();updUc();
-}catch(e){
-setOv(false);setSy(‘er’);
-toast(’Gagal: ’+e.message,‘er’);
-}
+function toast(msg, t='ok') {
+  const e = document.getElementById('toast');
+  e.textContent = (t==='ok'?'✓ ':t==='er'?'✗ ':'⚠ ') + msg;
+  e.style.borderColor = t==='ok'?'var(--green)':t==='er'?'var(--red)':'var(--amber)';
+  e.classList.add('sh');
+  setTimeout(() => e.classList.remove('sh'), 3000);
 }
 
-function sw(n){
-document.querySelectorAll(’.sc’).forEach(s=>s.classList.remove(‘ac’));
-document.querySelectorAll(’.nb’).forEach(t=>t.classList.remove(‘ac’));
-document.getElementById(‘sc-’+n).classList.add(‘ac’);
-document.querySelectorAll(’.nb’).forEach(t=>{if(t.getAttribute(‘onclick’)===`sw('${n}')`)t.classList.add(‘ac’);});
-if(n===‘db’)rdDb();if(n===‘st’)rdSt();if(n===‘rw’)rdRw();if(n===‘uc’)updUc();if(n===‘pr’)ldR();
+function setAl(id, msg) {
+  const e = document.getElementById(id);
+  if(e) e.innerHTML = msg ? `<div class="ae">${msg}</div>` : '';
 }
 
-function rdDb(){
-document.getElementById(‘dbc’).innerHTML=[
-{l:‘Ampas Basah’,k:‘ampas_basah’,c:’’},{l:‘Bungkil’,k:‘bungkil’,c:‘g’},
-{l:‘Minyak Spinner’,k:‘spinner’,c:‘b’},{l:‘Minyak JP’,k:‘jp’,c:‘b’},{l:‘UCO’,k:‘uco’,c:’’}
-].map(i=>`<div class="sc2 ${i.c}"><div class="sl">${i.l}</div><div class="sv">${fmt(D.stok[i.k])}</div><div class="su">kg</div></div>`).join(’’);
-const b=document.getElementById(‘dbt’),r=D.tx.slice(0,15);
-b.innerHTML=r.length?r.map(t=>`<tr><td>${t.tanggal||'-'}</td><td>${BG[t.tipe]||t.tipe}</td><td>${t.detail||'-'}</td><td>${fmt(t.jumlah)} kg</td><td>${t.ket||'-'}</td></tr>`).join(’’):’<tr><td colspan="5"><div class="es">Belum ada transaksi</div></td></tr>’;
+function setSy(v) {
+  const d = document.getElementById('sd'), l = document.getElementById('sl2');
+  if(v==='sy'){d.className='sd sy';l.textContent='Menyimpan...';}
+  else if(v==='ok'){d.className='sd';l.textContent='Tersinkron';}
+  else{d.className='sd er';l.textContent='Error';}
 }
 
-function rdSt(){
-document.getElementById(‘stl’).innerHTML=[
-{n:‘Ampas Basah’,t:‘Bahan Baku’,k:‘ampas_basah’},{n:‘Bungkil’,t:‘Produk Hasil Produksi’,k:‘bungkil’},
-{n:‘Minyak Spinner’,t:‘Produk Hasil Produksi’,k:‘spinner’},{n:‘Minyak JP’,t:‘Produk Pengendapan’,k:‘jp’},
-{n:‘UCO’,t:‘Beli – Jual Tanpa Olah’,k:‘uco’}
-].map(i=>`<div class="ki"><div class="kn">${i.n}</div><div class="kt">${i.t}</div><div class="kv">${fmt(D.stok[i.k])}</div><div class="ku">kilogram</div></div>`).join(’’);
+async function api(method, table, params='', body=null) {
+  const url = `${BASE}/${table}${params ? '?'+params : ''}`;
+  const opts = { method, headers: H };
+  if(body) opts.body = JSON.stringify(body);
+  const r = await fetch(url, opts);
+  const text = await r.text();
+  if(!r.ok) throw new Error(`${r.status}: ${text.slice(0,200)}`);
+  return text ? JSON.parse(text) : [];
 }
 
-async function saveMa(){
-const jml=parseFloat(document.getElementById(‘maJml’).value);
-if(!jml||jml<=0){toast(‘Jumlah harus diisi’,‘er’);return;}
-const b=document.getElementById(‘bma’);b.disabled=true;setSy(‘sy’);
-try{
-await dbUS({ampas_basah:D.stok.ampas_basah+jml});
-await dbAT({tipe:‘masuk’,tanggal:document.getElementById(‘maTgl’).value||tdy(),jumlah:jml,harga:parseFloat(document.getElementById(‘maHrg’).value)||0,detail:`Ampas Basah dari ${document.getElementById('maSup').value||'-'}`,ket:document.getElementById(‘maKet’).value||’’});
-setSy(‘ok’);toast(`+${fmt(jml)} kg Ampas Basah disimpan`);
-[‘maJml’,‘maHrg’,‘maSup’,‘maKet’].forEach(id=>document.getElementById(id).value=’’);
-rdDb();
-}catch(e){setSy(‘er’);toast(’Gagal: ’+e.message,‘er’);}
-b.disabled=false;
+async function loadAll() {
+  // Show loading, hide error
+  document.getElementById('lt').textContent = 'Menghubungkan ke cloud...';
+  document.getElementById('errBox').style.display = 'none';
+  document.getElementById('ov').classList.remove('h');
+
+  try {
+    const stokD  = await api('GET', 'stok',  'select=id,jumlah');
+    const rasioD = await api('GET', 'rasio', 'select=id,nilai');
+    const txD    = await api('GET', 'transaksi', 'select=*&order=created_at.desc&limit=500');
+
+    stokD.forEach(r  => { if(r.id in D.stok)  D.stok[r.id]  = parseFloat(r.jumlah)||0; });
+    rasioD.forEach(r => { if(r.id in D.rasio) D.rasio[r.id] = parseFloat(r.nilai)||0;  });
+    D.tx = txD.map(t => ({
+      id: t.id, tipe: t.tipe, tanggal: t.tanggal,
+      jumlah: parseFloat(t.jumlah)||0, harga: parseFloat(t.harga)||0,
+      detail: t.detail||'', ket: t.ket||''
+    }));
+
+    setSy('ok');
+    document.getElementById('ov').classList.add('h');
+    rdDb(); ldR(); updUc();
+
+  } catch(e) {
+    document.getElementById('lt').textContent = '';
+    document.getElementById('errMsg').textContent = 'Error: ' + e.message;
+    document.getElementById('errBox').style.display = 'block';
+    setSy('er');
+    console.error(e);
+  }
 }
 
-function ldR(){document.getElementById(‘rB’).value=D.rasio.bungkil;document.getElementById(‘rS’).value=D.rasio.spinner;updR();}
-function updR(){const b=parseFloat(document.getElementById(‘rB’).value)||0,s=parseFloat(document.getElementById(‘rS’).value)||0;document.getElementById(‘rL’).textContent=Math.max(0,100-b-s).toFixed(1)+’%’;}
-async function saveR(){
-const b=parseFloat(document.getElementById(‘rB’).value)||0,s=parseFloat(document.getElementById(‘rS’).value)||0;
-if(b+s>100){toast(‘Total rasio >100%’,‘er’);return;}
-setSy(‘sy’);
-try{await dbU(‘rasio’,‘id=eq.bungkil’,{nilai:b});await dbU(‘rasio’,‘id=eq.spinner’,{nilai:s});D.rasio={bungkil:b,spinner:s};setSy(‘ok’);toast(‘Rasio diperbarui’);}
-catch(e){setSy(‘er’);toast(’Gagal: ’+e.message,‘er’);}
+async function dbUS(upd) {
+  for(const [k,v] of Object.entries(upd)) {
+    await api('PATCH', 'stok', 'id=eq.'+k, {jumlah:v});
+    D.stok[k] = v;
+  }
 }
 
-function pvPr(){const j=parseFloat(document.getElementById(‘prJml’).value)||0,p=document.getElementById(‘pvPrEl’);if(j<=0){p.classList.remove(‘sh’);return;}document.getElementById(‘pvA’).textContent=`-${fmt(j)} kg`;document.getElementById(‘pvB’).textContent=`+${fmt(j*D.rasio.bungkil/100)} kg`;document.getElementById(‘pvS’).textContent=`+${fmt(j*D.rasio.spinner/100)} kg`;p.classList.add(‘sh’);}
-async function savePr(){
-const jml=parseFloat(document.getElementById(‘prJml’).value);
-if(!jml||jml<=0){toast(‘Jumlah harus diisi’,‘er’);return;}
-if(D.stok.ampas_basah<jml){setAl(‘alPr’,`Stok ampas basah tidak cukup. Tersedia: ${fmt(D.stok.ampas_basah)} kg`);return;}
-setAl(‘alPr’,’’);
-const bk=jml*D.rasio.bungkil/100,sp=jml*D.rasio.spinner/100;
-const b=document.getElementById(‘bpr’);b.disabled=true;setSy(‘sy’);
-try{
-await dbUS({ampas_basah:D.stok.ampas_basah-jml,bungkil:D.stok.bungkil+bk,spinner:D.stok.spinner+sp});
-await dbAT({tipe:‘produksi’,tanggal:document.getElementById(‘prTgl’).value||tdy(),jumlah:jml,harga:0,detail:`Produksi: -${fmt(jml)}kg ampas → +${fmt(bk)}kg bungkil, +${fmt(sp)}kg spinner`,ket:document.getElementById(‘prKet’).value||’’});
-setSy(‘ok’);toast(`Produksi ${fmt(jml)} kg berhasil`);
-document.getElementById(‘prJml’).value=’’;document.getElementById(‘prKet’).value=’’;
-document.getElementById(‘pvPrEl’).classList.remove(‘sh’);rdDb();
-}catch(e){setSy(‘er’);toast(’Gagal: ’+e.message,‘er’);}
-b.disabled=false;
+async function dbAT(tx) {
+  const r = await api('POST', 'transaksi', '', tx);
+  D.tx.unshift(Array.isArray(r) ? {...tx,...r[0]} : {...tx,...r});
 }
 
-function pvJp(){const a=parseFloat(document.getElementById(‘jpA’).value)||0,h=parseFloat(document.getElementById(‘jpH’).value)||0,p=document.getElementById(‘pvJpEl’);if(a<=0&&h<=0){p.classList.remove(‘sh’);return;}document.getElementById(‘pvJA’).textContent=a>0?`-${fmt(a)} kg`:’-’;document.getElementById(‘pvJH’).textContent=h>0?`+${fmt(h)} kg`:’-’;p.classList.add(‘sh’);}
-async function saveJp(){
-const a=parseFloat(document.getElementById(‘jpA’).value)||0,h=parseFloat(document.getElementById(‘jpH’).value);
-if(!h||h<=0){toast(‘Jumlah minyak JP harus diisi’,‘er’);return;}
-if(a>0&&D.stok.ampas_basah<a){setAl(‘alJp’,`Stok ampas basah tidak cukup. Tersedia: ${fmt(D.stok.ampas_basah)} kg`);return;}
-setAl(‘alJp’,’’);
-const upd={jp:D.stok.jp+h};if(a>0)upd.ampas_basah=D.stok.ampas_basah-a;
-const b=document.getElementById(‘bjp’);b.disabled=true;setSy(‘sy’);
-try{
-await dbUS(upd);
-await dbAT({tipe:‘jp’,tanggal:document.getElementById(‘jpTgl’).value||tdy(),jumlah:h,harga:0,detail:`Minyak JP: ${a>0?`dari ${fmt(a)}kg ampas`:'tanpa pengurangan ampas'}`,ket:document.getElementById(‘jpKet’).value||’’});
-setSy(‘ok’);toast(`+${fmt(h)} kg Minyak JP disimpan`);
-[‘jpA’,‘jpH’,‘jpKet’].forEach(id=>document.getElementById(id).value=’’);
-document.getElementById(‘pvJpEl’).classList.remove(‘sh’);rdDb();
-}catch(e){setSy(‘er’);toast(’Gagal: ’+e.message,‘er’);}
-b.disabled=false;
+const BG = {
+  masuk:    '<span class="bg2 bm">Masuk</span>',
+  produksi: '<span class="bg2 bpr">Produksi</span>',
+  jp:       '<span class="bg2 bj">JP</span>',
+  uco_masuk:'<span class="bg2 bm">UCO Masuk</span>',
+  keluar:   '<span class="bg2 bk">Jual</span>'
+};
+
+function sw(n) {
+  document.querySelectorAll('.sc').forEach(s=>s.classList.remove('ac'));
+  document.querySelectorAll('.nb').forEach(t=>t.classList.remove('ac'));
+  document.getElementById('sc-'+n).classList.add('ac');
+  document.querySelectorAll('.nb').forEach(t=>{ if(t.getAttribute('onclick')===`sw('${n}')`) t.classList.add('ac'); });
+  if(n==='db') rdDb();
+  if(n==='st') rdSt();
+  if(n==='rw') rdRw();
+  if(n==='uc') updUc();
+  if(n==='pr') ldR();
 }
 
-async function saveUc(){
-const jml=parseFloat(document.getElementById(‘ucJml’).value);
-if(!jml||jml<=0){toast(‘Jumlah harus diisi’,‘er’);return;}
-const b=document.getElementById(‘buc’);b.disabled=true;setSy(‘sy’);
-try{
-await dbUS({uco:D.stok.uco+jml});
-await dbAT({tipe:‘uco_masuk’,tanggal:document.getElementById(‘ucTgl’).value||tdy(),jumlah:jml,harga:parseFloat(document.getElementById(‘ucHrg’).value)||0,detail:`UCO dari ${document.getElementById('ucSup').value||'-'}`,ket:’’});
-setSy(‘ok’);updUc();toast(`+${fmt(jml)} kg UCO disimpan`);
-[‘ucJml’,‘ucHrg’,‘ucSup’].forEach(id=>document.getElementById(id).value=’’);rdDb();
-}catch(e){setSy(‘er’);toast(‘Gagal: ‘+e.message,‘er’);}
-b.disabled=false;
-}
-function updUc(){const kg=D.stok.uco;document.getElementById(‘ucD’).textContent=fmt(kg)+’ kg’;const p=Math.min(100,(kg/5000)*100);document.getElementById(‘ucP’).style.width=p+’%’;document.getElementById(‘ucPL’).textContent=fmt(kg)+’ / 5.000 kg’;}
+function rdDb() {
+  document.getElementById('dbc').innerHTML = [
+    {l:'Ampas Basah',k:'ampas_basah',c:''},{l:'Bungkil',k:'bungkil',c:'g'},
+    {l:'Minyak Spinner',k:'spinner',c:'b'},{l:'Minyak JP',k:'jp',c:'b'},{l:'UCO',k:'uco',c:''}
+  ].map(i=>`<div class="sc2 ${i.c}"><div class="sl">${i.l}</div><div class="sv">${fmt(D.stok[i.k])}</div><div class="su">kg</div></div>`).join('');
 
-async function saveKe(){
-const prd=document.getElementById(‘kePrd’).value,jml=parseFloat(document.getElementById(‘keJml’).value);
-if(!jml||jml<=0){toast(‘Jumlah harus diisi’,‘er’);return;}
-const nm={bungkil:‘Bungkil’,spinner:‘Minyak Spinner’,jp:‘Minyak JP’,uco:‘UCO’}[prd];
-if(D.stok[prd]<jml){setAl(‘alKe’,`Stok ${nm} tidak cukup. Tersedia: ${fmt(D.stok[prd])} kg`);return;}
-setAl(‘alKe’,’’);
-const b=document.getElementById(‘bke’);b.disabled=true;setSy(‘sy’);
-try{
-await dbUS({[prd]:D.stok[prd]-jml});
-await dbAT({tipe:‘keluar’,tanggal:document.getElementById(‘keTgl’).value||tdy(),jumlah:jml,harga:parseFloat(document.getElementById(‘keHrg’).value)||0,detail:`Jual ${nm} ke ${document.getElementById('kePmb').value||'-'}`,ket:document.getElementById(‘keKet’).value||’’});
-setSy(‘ok’);if(prd===‘uco’)updUc();toast(`Penjualan ${fmt(jml)} kg ${nm} disimpan`);
-[‘keJml’,‘keHrg’,‘kePmb’,‘keKet’].forEach(id=>document.getElementById(id).value=’’);rdDb();
-}catch(e){setSy(‘er’);toast(’Gagal: ’+e.message,‘er’);}
-b.disabled=false;
+  const r = D.tx.slice(0,15);
+  document.getElementById('dbt').innerHTML = r.length
+    ? r.map(t=>`<tr><td>${t.tanggal||'-'}</td><td>${BG[t.tipe]||t.tipe}</td><td>${t.detail||'-'}</td><td>${fmt(t.jumlah)} kg</td><td>${t.ket||'-'}</td></tr>`).join('')
+    : '<tr><td colspan="5"><div class="es">Belum ada transaksi</div></td></tr>';
 }
 
-function rdRw(){
-const ft=document.getElementById(‘fTp’).value,fb=document.getElementById(‘fBl’).value;
-let data=[…D.tx];
-if(ft)data=data.filter(t=>t.tipe===ft);
-if(fb)data=data.filter(t=>t.tanggal&&t.tanggal.startsWith(fb));
-document.getElementById(‘rwb’).innerHTML=data.length?data.map(t=>`<tr><td>${t.tanggal||'-'}</td><td>${BG[t.tipe]||t.tipe}</td><td style="color:var(--text);max-width:200px;">${t.detail||'-'}</td><td>${fmt(t.jumlah)} kg</td><td>${t.harga?fRp(t.harga):'-'}</td><td>${t.harga&&t.tipe==='keluar'?fRp(t.harga*t.jumlah):'-'}</td><td>${t.ket||'-'}</td></tr>`).join(’’):’<tr><td colspan="7"><div class="es">Belum ada data</div></td></tr>’;
+function rdSt() {
+  document.getElementById('stl').innerHTML = [
+    {n:'Ampas Basah',t:'Bahan Baku',k:'ampas_basah'},{n:'Bungkil',t:'Produk Produksi',k:'bungkil'},
+    {n:'Minyak Spinner',t:'Produk Produksi',k:'spinner'},{n:'Minyak JP',t:'Produk Pengendapan',k:'jp'},
+    {n:'UCO',t:'Beli–Jual Tanpa Olah',k:'uco'}
+  ].map(i=>`<div class="ki"><div class="kn">${i.n}</div><div class="kt">${i.t}</div><div class="kv">${fmt(D.stok[i.k])}</div><div class="ku">kilogram</div></div>`).join('');
 }
 
-function expCSV(){
-const rows=[[‘Tanggal’,‘Tipe’,‘Detail’,‘Jumlah (kg)’,‘Harga/kg’,‘Total’,‘Keterangan’]];
-D.tx.forEach(t=>rows.push([t.tanggal,t.tipe,t.detail||’’,t.jumlah,t.harga||’’,t.harga&&t.tipe===‘keluar’?t.harga*t.jumlah:’’,t.ket||’’]));
-const csv=rows.map(r=>r.map(c=>`"${c}"`).join(’,’)).join(’\n’);
-const a=document.createElement(‘a’);a.href=‘data:text/csv;charset=utf-8,\uFEFF’+encodeURIComponent(csv);a.download=‘riwayat-stok.csv’;a.click();
-toast(‘CSV berhasil diexport’);
+async function saveMa() {
+  const jml = parseFloat(document.getElementById('maJml').value);
+  if(!jml||jml<=0){toast('Jumlah harus diisi','er');return;}
+  const b = document.getElementById('bma'); b.disabled=true; setSy('sy');
+  try {
+    await dbUS({ampas_basah: D.stok.ampas_basah+jml});
+    await dbAT({tipe:'masuk',tanggal:document.getElementById('maTgl').value||tdy(),jumlah:jml,harga:parseFloat(document.getElementById('maHrg').value)||0,detail:'Ampas Basah dari '+(document.getElementById('maSup').value||'-'),ket:document.getElementById('maKet').value||''});
+    setSy('ok'); toast('+'+fmt(jml)+' kg Ampas Basah disimpan');
+    ['maJml','maHrg','maSup','maKet'].forEach(id=>document.getElementById(id).value='');
+    rdDb();
+  } catch(e){setSy('er');toast('Gagal: '+e.message,'er');}
+  b.disabled=false;
 }
 
-function init(){
-document.getElementById(‘hd’).textContent=new Date().toLocaleDateString(‘id-ID’,{weekday:‘long’,year:‘numeric’,month:‘long’,day:‘numeric’});
-[‘maTgl’,‘prTgl’,‘jpTgl’,‘ucTgl’,‘keTgl’].forEach(id=>{const e=document.getElementById(id);if(e)e.value=tdy();});
+function ldR(){document.getElementById('rB').value=D.rasio.bungkil;document.getElementById('rS').value=D.rasio.spinner;updR();}
+function updR(){const b=parseFloat(document.getElementById('rB').value)||0,s=parseFloat(document.getElementById('rS').value)||0;document.getElementById('rL').textContent=Math.max(0,100-b-s).toFixed(1)+'%';}
+
+async function saveR() {
+  const b=parseFloat(document.getElementById('rB').value)||0, s=parseFloat(document.getElementById('rS').value)||0;
+  if(b+s>100){toast('Total rasio >100%','er');return;}
+  setSy('sy');
+  try {
+    await api('PATCH','rasio','id=eq.bungkil',{nilai:b});
+    await api('PATCH','rasio','id=eq.spinner',{nilai:s});
+    D.rasio={bungkil:b,spinner:s}; setSy('ok'); toast('Rasio diperbarui');
+  } catch(e){setSy('er');toast('Gagal: '+e.message,'er');}
+}
+
+function pvPr(){const j=parseFloat(document.getElementById('prJml').value)||0,p=document.getElementById('pvPrEl');if(j<=0){p.classList.remove('sh');return;}document.getElementById('pvA').textContent='-'+fmt(j)+' kg';document.getElementById('pvB').textContent='+'+fmt(j*D.rasio.bungkil/100)+' kg';document.getElementById('pvS').textContent='+'+fmt(j*D.rasio.spinner/100)+' kg';p.classList.add('sh');}
+
+async function savePr() {
+  const jml=parseFloat(document.getElementById('prJml').value);
+  if(!jml||jml<=0){toast('Jumlah harus diisi','er');return;}
+  if(D.stok.ampas_basah<jml){setAl('alPr','Stok ampas basah tidak cukup. Tersedia: '+fmt(D.stok.ampas_basah)+' kg');return;}
+  setAl('alPr','');
+  const bk=jml*D.rasio.bungkil/100, sp=jml*D.rasio.spinner/100;
+  const b=document.getElementById('bpr'); b.disabled=true; setSy('sy');
+  try {
+    await dbUS({ampas_basah:D.stok.ampas_basah-jml, bungkil:D.stok.bungkil+bk, spinner:D.stok.spinner+sp});
+    await dbAT({tipe:'produksi',tanggal:document.getElementById('prTgl').value||tdy(),jumlah:jml,harga:0,detail:'Produksi: -'+fmt(jml)+'kg ampas, +'+fmt(bk)+'kg bungkil, +'+fmt(sp)+'kg spinner',ket:document.getElementById('prKet').value||''});
+    setSy('ok'); toast('Produksi '+fmt(jml)+' kg berhasil');
+    document.getElementById('prJml').value=''; document.getElementById('prKet').value='';
+    document.getElementById('pvPrEl').classList.remove('sh'); rdDb();
+  } catch(e){setSy('er');toast('Gagal: '+e.message,'er');}
+  b.disabled=false;
+}
+
+function pvJp(){const a=parseFloat(document.getElementById('jpA').value)||0,h=parseFloat(document.getElementById('jpH').value)||0,p=document.getElementById('pvJpEl');if(a<=0&&h<=0){p.classList.remove('sh');return;}document.getElementById('pvJA').textContent=a>0?'-'+fmt(a)+' kg':'-';document.getElementById('pvJH').textContent=h>0?'+'+fmt(h)+' kg':'-';p.classList.add('sh');}
+
+async function saveJp() {
+  const a=parseFloat(document.getElementById('jpA').value)||0, h=parseFloat(document.getElementById('jpH').value);
+  if(!h||h<=0){toast('Jumlah minyak JP harus diisi','er');return;}
+  if(a>0&&D.stok.ampas_basah<a){setAl('alJp','Stok ampas basah tidak cukup. Tersedia: '+fmt(D.stok.ampas_basah)+' kg');return;}
+  setAl('alJp','');
+  const upd={jp:D.stok.jp+h}; if(a>0) upd.ampas_basah=D.stok.ampas_basah-a;
+  const b=document.getElementById('bjp'); b.disabled=true; setSy('sy');
+  try {
+    await dbUS(upd);
+    await dbAT({tipe:'jp',tanggal:document.getElementById('jpTgl').value||tdy(),jumlah:h,harga:0,detail:'Minyak JP: '+(a>0?'dari '+fmt(a)+'kg ampas':'tanpa pengurangan ampas'),ket:document.getElementById('jpKet').value||''});
+    setSy('ok'); toast('+'+fmt(h)+' kg Minyak JP disimpan');
+    ['jpA','jpH','jpKet'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('pvJpEl').classList.remove('sh'); rdDb();
+  } catch(e){setSy('er');toast('Gagal: '+e.message,'er');}
+  b.disabled=false;
+}
+
+async function saveUc() {
+  const jml=parseFloat(document.getElementById('ucJml').value);
+  if(!jml||jml<=0){toast('Jumlah harus diisi','er');return;}
+  const b=document.getElementById('buc'); b.disabled=true; setSy('sy');
+  try {
+    await dbUS({uco:D.stok.uco+jml});
+    await dbAT({tipe:'uco_masuk',tanggal:document.getElementById('ucTgl').value||tdy(),jumlah:jml,harga:parseFloat(document.getElementById('ucHrg').value)||0,detail:'UCO dari '+(document.getElementById('ucSup').value||'-'),ket:''});
+    setSy('ok'); updUc(); toast('+'+fmt(jml)+' kg UCO disimpan');
+    ['ucJml','ucHrg','ucSup'].forEach(id=>document.getElementById(id).value='');
+    rdDb();
+  } catch(e){setSy('er');toast('Gagal: '+e.message,'er');}
+  b.disabled=false;
+}
+
+function updUc(){const kg=D.stok.uco;document.getElementById('ucD').textContent=fmt(kg)+' kg';const p=Math.min(100,(kg/5000)*100);document.getElementById('ucP').style.width=p+'%';document.getElementById('ucPL').textContent=fmt(kg)+' / 5.000 kg';}
+
+async function saveKe() {
+  const prd=document.getElementById('kePrd').value, jml=parseFloat(document.getElementById('keJml').value);
+  if(!jml||jml<=0){toast('Jumlah harus diisi','er');return;}
+  const nm={bungkil:'Bungkil',spinner:'Minyak Spinner',jp:'Minyak JP',uco:'UCO'}[prd];
+  if(D.stok[prd]<jml){setAl('alKe','Stok '+nm+' tidak cukup. Tersedia: '+fmt(D.stok[prd])+' kg');return;}
+  setAl('alKe','');
+  const b=document.getElementById('bke'); b.disabled=true; setSy('sy');
+  try {
+    await dbUS({[prd]:D.stok[prd]-jml});
+    await dbAT({tipe:'keluar',tanggal:document.getElementById('keTgl').value||tdy(),jumlah:jml,harga:parseFloat(document.getElementById('keHrg').value)||0,detail:'Jual '+nm+' ke '+(document.getElementById('kePmb').value||'-'),ket:document.getElementById('keKet').value||''});
+    setSy('ok'); if(prd==='uco') updUc(); toast('Penjualan '+fmt(jml)+' kg '+nm+' disimpan');
+    ['keJml','keHrg','kePmb','keKet'].forEach(id=>document.getElementById(id).value='');
+    rdDb();
+  } catch(e){setSy('er');toast('Gagal: '+e.message,'er');}
+  b.disabled=false;
+}
+
+function rdRw() {
+  const ft=document.getElementById('fTp').value, fb=document.getElementById('fBl').value;
+  let data=[...D.tx];
+  if(ft) data=data.filter(t=>t.tipe===ft);
+  if(fb) data=data.filter(t=>t.tanggal&&t.tanggal.startsWith(fb));
+  document.getElementById('rwb').innerHTML = data.length
+    ? data.map(t=>`<tr><td>${t.tanggal||'-'}</td><td>${BG[t.tipe]||t.tipe}</td><td style="color:var(--text);max-width:200px;">${t.detail||'-'}</td><td>${fmt(t.jumlah)} kg</td><td>${t.harga?fmtRp(t.harga):'-'}</td><td>${t.harga&&t.tipe==='keluar'?fmtRp(t.harga*t.jumlah):'-'}</td><td>${t.ket||'-'}</td></tr>`).join('')
+    : '<tr><td colspan="7"><div class="es">Belum ada data</div></td></tr>';
+}
+
+function expCSV() {
+  const rows=[['Tanggal','Tipe','Detail','Jumlah (kg)','Harga/kg','Total','Keterangan']];
+  D.tx.forEach(t=>rows.push([t.tanggal,t.tipe,t.detail||'',t.jumlah,t.harga||'',t.harga&&t.tipe==='keluar'?t.harga*t.jumlah:'',t.ket||'']));
+  const csv=rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+  const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv); a.download='riwayat-stok.csv'; a.click();
+  toast('CSV berhasil diexport');
+}
+
+// INIT
+document.getElementById('hd').textContent = new Date().toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+['maTgl','prTgl','jpTgl','ucTgl','keTgl'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=tdy(); });
 loadAll();
-}
-init();
 </script>
 
 </body>
