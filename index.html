@@ -61,11 +61,6 @@ select option{background:var(--surface2);}
 .bs{background:transparent;border:1px solid var(--border2);color:var(--text2);}
 .bs:hover{border-color:var(--amber);color:var(--amber);}
 .bsm{padding:6px 12px;font-size:11px;}
-.rr{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:12px;}
-.ri{display:flex;flex-direction:column;gap:6px;}
-.rl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;}
-.rv{font-size:18px;font-weight:500;color:var(--amber);}
-.rn{font-size:10px;color:var(--text3);margin-top:4px;}
 .tw{overflow-x:auto;}
 table{width:100%;border-collapse:collapse;}
 th{font-family:'Syne',sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);font-weight:600;padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);}
@@ -77,6 +72,7 @@ tr:hover td{background:var(--amber-glow2);}
 .bk{background:rgba(224,92,92,0.15);color:var(--red);}
 .bpr{background:var(--amber-glow);color:var(--amber);}
 .bj{background:rgba(91,155,213,0.15);color:var(--blue);}
+.bsa{background:rgba(91,155,213,0.15);color:#a78bfa;}
 .ae{padding:12px 16px;border-radius:var(--radius);font-size:12px;margin-bottom:16px;background:rgba(224,92,92,0.1);border:1px solid rgba(224,92,92,0.3);color:var(--red);}
 .st{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--text);margin-bottom:6px;}
 .ss{color:var(--text3);font-size:12px;margin-bottom:24px;}
@@ -97,9 +93,8 @@ tr:hover td{background:var(--amber-glow2);}
 #toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:12px 18px;font-size:13px;color:var(--text);z-index:9999;transform:translateY(80px);opacity:0;transition:all 0.3s;max-width:300px;}
 #toast.sh{transform:translateY(0);opacity:1;}
 .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
-/* Susut manual style */
-.susut-manual input{color:var(--amber);font-weight:500;}
-@media(max-width:600px){.mn{padding:16px;}.cg{grid-template-columns:repeat(2,1fr);}.fg{grid-template-columns:1fr;}.rr{grid-template-columns:1fr;}.hd{display:none;}}
+.info-box{background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.25);border-radius:var(--radius);padding:14px 16px;margin-bottom:20px;font-size:12px;color:var(--amber);}
+@media(max-width:600px){.mn{padding:16px;}.cg{grid-template-columns:repeat(2,1fr);}.fg{grid-template-columns:1fr;}.hd{display:none;}}
 </style>
 </head>
 <body>
@@ -131,10 +126,13 @@ tr:hover td{background:var(--amber-glow2);}
   <div class="nb" onclick="sw('uc')">UCO</div>
   <div class="nb" onclick="sw('ke')">Penjualan</div>
   <div class="nb" onclick="sw('rw')">Riwayat</div>
+  <div class="nb" onclick="sw('sa')" style="color:#a78bfa;opacity:0.85;">⊕ Stok Awal</div>
 </div>
 
 <div class="mn">
+
   <!-- DASHBOARD -->
+
   <div class="sc ac" id="sc-db">
     <div class="st">Dashboard</div><div class="ss">Ringkasan stok real-time dari cloud</div>
     <div class="cg" id="dbc"></div>
@@ -156,9 +154,7 @@ tr:hover td{background:var(--amber-glow2);}
     <div class="st">Bahan Masuk</div><div class="ss">Catat penerimaan ampas basah dari supplier</div>
     <div class="pn"><div class="ph"><div class="pt">Input Ampas Basah</div></div><div class="pb">
       <div class="fg">
-        <!-- FIX #1: Tanggal bisa diedit manual -->
         <div class="fg2"><label>Tanggal</label><input type="date" id="maTgl"></div>
-        <!-- FIX: Satuan kg atau ember -->
         <div class="fg2">
           <label>Satuan Input</label>
           <select id="maSat" onchange="updMaSat()">
@@ -173,43 +169,37 @@ tr:hover td{background:var(--amber-glow2);}
         </div>
         <div class="fg2"><label>Harga Beli / kg (Rp)</label><input type="number" id="maHrg" placeholder="0"></div>
         <div class="fg2"><label>Supplier</label><input type="text" id="maSup" placeholder="Nama supplier"></div>
-        <!-- FIX #2: Keterangan sekarang berfungsi -->
         <div class="fg2 fu"><label>Keterangan</label><input type="text" id="maKet" placeholder="Opsional"></div>
       </div>
       <button class="bt bp" id="bma" onclick="saveMa()">Simpan</button>
     </div></div>
   </div>
 
-  <!-- PRODUKSI -->
+  <!-- PRODUKSI (alur baru: input hasil jadi + ember) -->
 
   <div class="sc" id="sc-pr">
-    <div class="st">Input Produksi</div><div class="ss">Konversi ampas basah → bungkil + minyak spinner</div>
-    <div class="pn"><div class="ph"><div class="pt">Rasio Produksi</div></div><div class="pb">
-      <p style="font-size:11px;color:var(--text3);margin-bottom:12px;">Rasio hasil dari setiap 100 kg ampas basah</p>
-      <div class="rr">
-        <div class="ri"><div class="rl">Bungkil %</div><input type="number" id="rB" value="65" min="0" max="100" step="0.1" onchange="updR()"><div class="rn">% dari input</div></div>
-        <div class="ri"><div class="rl">Spinner %</div><input type="number" id="rS" value="20" min="0" max="100" step="0.1" onchange="updR()"><div class="rn">% dari input</div></div>
-        <!-- FIX #5: Susut bisa diisi manual -->
-        <div class="ri susut-manual"><div class="rl">Susut %</div><input type="number" id="rL" value="15" min="0" max="100" step="0.1" onchange="updRSusut()"><div class="rn">manual</div></div>
-      </div>
-      <button class="bt bs bsm" onclick="saveR()">Simpan Rasio</button>
-    </div></div>
-    <div class="pn"><div class="ph"><div class="pt">Catat Produksi</div></div><div class="pb">
+    <div class="st">Input Produksi</div><div class="ss">Input hasil timbangan aktual dari lapangan</div>
+    <div class="pn"><div class="ph"><div class="pt">Catat Produksi Harian</div></div><div class="pb">
       <div id="alPr"></div>
       <div class="fg">
-        <!-- FIX #1: Tanggal bisa diedit -->
         <div class="fg2"><label>Tanggal</label><input type="date" id="prTgl"></div>
-        <div class="fg2"><label>Ampas Basah (kg)</label><input type="number" id="prJml" placeholder="0" min="0" step="0.1" oninput="pvPr()"></div>
+        <div class="fg2"><label>Ampas Basah (ember)</label><input type="number" id="prEmber" placeholder="0" min="0" step="1" oninput="pvPr()"></div>
+        <div class="fg2">
+          <label>Est. Ampas Terpakai</label>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;color:var(--text3);font-size:13px;" id="prAmpasEst">— kg</div>
+        </div>
+        <div class="fg2"><label>Bungkil Keluar (kg)</label><input type="number" id="prBk" placeholder="0" min="0" step="0.1" oninput="pvPr()"></div>
+        <div class="fg2"><label>Minyak Spinner (kg)</label><input type="number" id="prSp" placeholder="0" min="0" step="0.1" oninput="pvPr()"></div>
         <div class="fg2 fu"><label>Keterangan</label><input type="text" id="prKet" placeholder="Opsional"></div>
       </div>
       <div class="pp" id="pvPrEl">
-        <div class="ppt">Preview Stok</div>
-        <div class="ppr"><span>Ampas Basah</span><span class="pm" id="pvA"></span></div>
-        <div class="ppr"><span>Bungkil</span><span class="pp2" id="pvB"></span></div>
-        <div class="ppr"><span>Minyak Spinner</span><span class="pp2" id="pvS"></span></div>
-        <div class="ppr"><span>Susut</span><span style="color:var(--text3);" id="pvSusut"></span></div>
+        <div class="ppt">Ringkasan Batch</div>
+        <div class="ppr"><span>Ampas terpakai (est.)</span><span class="pm" id="pvA"></span></div>
+        <div class="ppr"><span>Bungkil ditambah</span><span class="pp2" id="pvB"></span></div>
+        <div class="ppr"><span>Spinner ditambah</span><span class="pp2" id="pvS"></span></div>
+        <div class="ppr"><span>Susut aktual batch ini</span><span style="color:var(--text3);" id="pvSusut"></span></div>
       </div>
-      <br><button class="bt bp" id="bpr" onclick="savePr()">Proses Produksi</button>
+      <br><button class="bt bp" id="bpr" onclick="savePr()">Simpan Produksi</button>
     </div></div>
   </div>
 
@@ -220,9 +210,7 @@ tr:hover td{background:var(--amber-glow2);}
     <div class="pn"><div class="ph"><div class="pt">Catat Minyak JP</div></div><div class="pb">
       <div id="alJp"></div>
       <div class="fg">
-        <!-- FIX #1: Tanggal bisa diedit -->
         <div class="fg2"><label>Tanggal</label><input type="date" id="jpTgl"></div>
-        <!-- FIX #4: Field "Ampas Diendapkan" dihapus -->
         <div class="fg2"><label>Minyak JP Didapat (kg)</label><input type="number" id="jpH" placeholder="0" min="0" step="0.1"></div>
         <div class="fg2 fu"><label>Keterangan</label><input type="text" id="jpKet" placeholder="Opsional"></div>
       </div>
@@ -236,12 +224,10 @@ tr:hover td{background:var(--amber-glow2);}
     <div class="st">UCO</div><div class="ss">Beli dari supplier, jual tanpa diolah</div>
     <div class="pn"><div class="ph"><div class="pt">Beli UCO</div></div><div class="pb">
       <div class="fg">
-        <!-- FIX #1: Tanggal bisa diedit -->
         <div class="fg2"><label>Tanggal</label><input type="date" id="ucTgl"></div>
         <div class="fg2"><label>Jumlah (kg)</label><input type="number" id="ucJml" placeholder="0" min="0" step="0.1"></div>
         <div class="fg2"><label>Harga Beli / kg (Rp)</label><input type="number" id="ucHrg" placeholder="0"></div>
         <div class="fg2"><label>Supplier</label><input type="text" id="ucSup" placeholder="Nama supplier"></div>
-        <!-- FIX #2: Keterangan UCO -->
         <div class="fg2 fu"><label>Keterangan</label><input type="text" id="ucKet" placeholder="Opsional"></div>
       </div>
       <button class="bt bp" id="buc" onclick="saveUc()">Simpan</button>
@@ -261,21 +247,43 @@ tr:hover td{background:var(--amber-glow2);}
     <div class="pn"><div class="ph"><div class="pt">Input Penjualan</div></div><div class="pb">
       <div id="alKe"></div>
       <div class="fg">
-        <!-- FIX #1: Tanggal bisa diedit -->
         <div class="fg2"><label>Tanggal</label><input type="date" id="keTgl"></div>
         <div class="fg2"><label>Produk</label><select id="kePrd"><option value="bungkil">Bungkil</option><option value="spinner">Minyak Spinner</option><option value="jp">Minyak JP</option><option value="uco">UCO</option></select></div>
         <div class="fg2"><label>Jumlah (kg)</label><input type="number" id="keJml" placeholder="0" min="0" step="0.1" oninput="updKeTot()"></div>
         <div class="fg2"><label>Harga Jual / kg (Rp)</label><input type="number" id="keHrg" placeholder="0" oninput="updKeTot()"></div>
         <div class="fg2"><label>Pembeli</label><input type="text" id="kePmb" placeholder="Nama pembeli"></div>
-        <!-- FIX #2: Keterangan penjualan berfungsi -->
         <div class="fg2"><label>Keterangan</label><input type="text" id="keKet" placeholder="Opsional"></div>
-        <!-- Total otomatis -->
         <div class="fg2 fu" id="keTotBox" style="display:none;">
           <label>Total Transaksi</label>
           <div style="background:var(--bg);border:1px solid var(--amber);border-radius:var(--radius);padding:10px 12px;color:var(--amber);font-size:15px;font-weight:500;" id="keTotVal">Rp 0</div>
         </div>
       </div>
       <button class="bt bp" id="bke" onclick="saveKe()">Simpan Penjualan</button>
+    </div></div>
+  </div>
+
+  <!-- STOK AWAL -->
+
+  <div class="sc" id="sc-sa">
+    <div class="st">Input Stok Awal</div><div class="ss">Masukkan stok yang sudah ada sebelum mulai pakai aplikasi</div>
+    <div class="info-box">⚠ Fitur ini langsung menambah stok tanpa mengurangi bahan baku apapun. Gunakan hanya sekali untuk data awal, atau koreksi stok jika ada selisih.</div>
+    <div class="pn"><div class="ph"><div class="pt">Tambah Stok Langsung</div></div><div class="pb">
+      <div class="fg">
+        <div class="fg2"><label>Tanggal</label><input type="date" id="saTgl"></div>
+        <div class="fg2">
+          <label>Produk</label>
+          <select id="saPrd">
+            <option value="ampas_basah">Ampas Basah</option>
+            <option value="bungkil">Bungkil</option>
+            <option value="spinner">Minyak Spinner</option>
+            <option value="jp">Minyak JP</option>
+            <option value="uco">UCO</option>
+          </select>
+        </div>
+        <div class="fg2"><label>Jumlah (kg)</label><input type="number" id="saJml" placeholder="0" min="0" step="0.1"></div>
+        <div class="fg2 fu"><label>Keterangan</label><input type="text" id="saKet" placeholder="Contoh: Stok awal per 11 Mei 2026"></div>
+      </div>
+      <button class="bt bp" id="bsa" onclick="saveSa()">Tambah Stok Awal</button>
     </div></div>
   </div>
 
@@ -292,18 +300,18 @@ tr:hover td{background:var(--amber-glow2);}
           <option value="jp">Minyak JP</option>
           <option value="uco_masuk">UCO Masuk</option>
           <option value="keluar">Penjualan</option>
+          <option value="stok_awal">Stok Awal</option>
         </select>
-        <!-- FIX #1: Filter by nama supplier/pembeli -->
         <input type="text" id="fNama" placeholder="Cari nama supplier / pembeli..." onkeyup="rdRw()" style="min-width:200px;flex:1;">
         <input type="month" id="fBl" onchange="rdRw()">
         <button class="bt bs bsm" onclick="expCSV()">Export CSV</button>
       </div>
     </div></div>
     <div class="pn"><div class="pb" style="padding:0;"><div class="tw">
-      <!-- FIX #3: Kolom Total tampil untuk semua tipe -->
       <table><thead><tr><th>Tanggal</th><th>Tipe</th><th>Detail</th><th>Jumlah</th><th>Harga/kg</th><th>Total</th><th>Ket</th></tr></thead><tbody id="rwb"></tbody></table>
     </div></div></div>
   </div>
+
 </div>
 
 <div id="toast"></div>
@@ -320,7 +328,6 @@ const H = {
 
 let D = {
   stok: { ampas_basah:0, bungkil:0, spinner:0, jp:0, uco:0 },
-  rasio: { bungkil:65, spinner:20, susut:15 },
   tx: []
 };
 
@@ -362,30 +369,23 @@ async function loadAll() {
   document.getElementById('lt').textContent = 'Menghubungkan ke cloud...';
   document.getElementById('errBox').style.display = 'none';
   document.getElementById('ov').classList.remove('h');
-
   try {
-    const stokD  = await api('GET', 'stok',  'select=id,jumlah');
-    const rasioD = await api('GET', 'rasio', 'select=id,nilai');
-    const txD    = await api('GET', 'transaksi', 'select=*&order=created_at.desc&limit=500');
-
-    stokD.forEach(r  => { if(r.id in D.stok)  D.stok[r.id]  = parseFloat(r.jumlah)||0; });
-    rasioD.forEach(r => { if(r.id in D.rasio) D.rasio[r.id] = parseFloat(r.nilai)||0;  });
+    const stokD = await api('GET', 'stok', 'select=id,jumlah');
+    const txD   = await api('GET', 'transaksi', 'select=*&order=created_at.desc&limit=500');
+    stokD.forEach(r => { if(r.id in D.stok) D.stok[r.id] = parseFloat(r.jumlah)||0; });
     D.tx = txD.map(t => ({
       id: t.id, tipe: t.tipe, tanggal: t.tanggal,
       jumlah: parseFloat(t.jumlah)||0, harga: parseFloat(t.harga)||0,
       detail: t.detail||'', ket: t.ket||''
     }));
-
     setSy('ok');
     document.getElementById('ov').classList.add('h');
-    rdDb(); ldR(); updUc();
-
+    rdDb(); updUc();
   } catch(e) {
     document.getElementById('lt').textContent = '';
     document.getElementById('errMsg').textContent = 'Error: ' + e.message;
     document.getElementById('errBox').style.display = 'block';
     setSy('er');
-    console.error(e);
   }
 }
 
@@ -402,11 +402,12 @@ async function dbAT(tx) {
 }
 
 const BG = {
-  masuk:    '<span class="bg2 bm">Masuk</span>',
-  produksi: '<span class="bg2 bpr">Produksi</span>',
-  jp:       '<span class="bg2 bj">JP</span>',
-  uco_masuk:'<span class="bg2 bm">UCO Masuk</span>',
-  keluar:   '<span class="bg2 bk">Jual</span>'
+  masuk:     '<span class="bg2 bm">Masuk</span>',
+  produksi:  '<span class="bg2 bpr">Produksi</span>',
+  jp:        '<span class="bg2 bj">JP</span>',
+  uco_masuk: '<span class="bg2 bm">UCO Masuk</span>',
+  keluar:    '<span class="bg2 bk">Jual</span>',
+  stok_awal: '<span class="bg2 bsa">Stok Awal</span>'
 };
 
 function sw(n) {
@@ -418,7 +419,6 @@ function sw(n) {
   if(n==='st') rdSt();
   if(n==='rw') rdRw();
   if(n==='uc') updUc();
-  if(n==='pr') ldR();
 }
 
 function rdDb() {
@@ -426,7 +426,6 @@ function rdDb() {
     {l:'Ampas Basah',k:'ampas_basah',c:''},{l:'Bungkil',k:'bungkil',c:'g'},
     {l:'Minyak Spinner',k:'spinner',c:'b'},{l:'Minyak JP',k:'jp',c:'b'},{l:'UCO',k:'uco',c:''}
   ].map(i=>`<div class="sc2 ${i.c}"><div class="sl">${i.l}</div><div class="sv">${fmt(D.stok[i.k])}</div><div class="su">kg</div></div>`).join('');
-
   const r = D.tx.slice(0,15);
   document.getElementById('dbt').innerHTML = r.length
     ? r.map(t=>`<tr><td>${t.tanggal||'-'}</td><td>${BG[t.tipe]||t.tipe}</td><td>${t.detail||'-'}</td><td>${fmt(t.jumlah)} kg</td><td>${t.ket||'-'}</td></tr>`).join('')
@@ -437,35 +436,28 @@ function rdSt() {
   document.getElementById('stl').innerHTML = [
     {n:'Ampas Basah',t:'Bahan Baku',k:'ampas_basah'},{n:'Bungkil',t:'Produk Produksi',k:'bungkil'},
     {n:'Minyak Spinner',t:'Produk Produksi',k:'spinner'},{n:'Minyak JP',t:'Produk Pengendapan',k:'jp'},
-    {n:'UCO',t:'Beli–Jual Tanpa Olah',k:'uco'}
+    {n:'UCO',t:'Beli-Jual Tanpa Olah',k:'uco'}
   ].map(i=>`<div class="ki"><div class="kn">${i.n}</div><div class="kt">${i.t}</div><div class="kv">${fmt(D.stok[i.k])}</div><div class="ku">kilogram</div></div>`).join('');
 }
 
-// FIX: Satuan ember untuk ampas basah
+// ── BAHAN MASUK ──
 function updMaSat() {
   const sat = document.getElementById('maSat').value;
-  const jmlEl = document.getElementById('maJml');
-  const labelEl = document.getElementById('maJmlLabel');
-  const konversiBox = document.getElementById('maKonversiBox');
-  const konversiVal = document.getElementById('maKonversiVal');
-  if(sat === 'ember') {
-    labelEl.textContent = 'Jumlah (ember)';
-    jmlEl.placeholder = '0';
-    const ember = parseFloat(jmlEl.value)||0;
-    const kg = ember * 18;
-    konversiVal.textContent = fmt(kg) + ' kg (' + fmt(ember) + ' ember × 18 kg)';
-    konversiBox.style.display = '';
+  const jml = parseFloat(document.getElementById('maJml').value)||0;
+  document.getElementById('maJmlLabel').textContent = sat==='ember' ? 'Jumlah (ember)' : 'Jumlah (kg)';
+  const box = document.getElementById('maKonversiBox');
+  if(sat==='ember') {
+    document.getElementById('maKonversiVal').textContent = fmt(jml*18)+' kg ('+fmt(jml)+' ember × 18 kg)';
+    box.style.display='';
   } else {
-    labelEl.textContent = 'Jumlah (kg)';
-    jmlEl.placeholder = '0';
-    konversiBox.style.display = 'none';
+    box.style.display='none';
   }
 }
 
 function getMaKg() {
   const sat = document.getElementById('maSat').value;
   const jml = parseFloat(document.getElementById('maJml').value)||0;
-  return sat === 'ember' ? jml * 18 : jml;
+  return sat==='ember' ? jml*18 : jml;
 }
 
 async function saveMa() {
@@ -473,111 +465,74 @@ async function saveMa() {
   if(!jmlKg||jmlKg<=0){toast('Jumlah harus diisi','er');return;}
   const sat = document.getElementById('maSat').value;
   const jmlRaw = parseFloat(document.getElementById('maJml').value)||0;
-  const satuanLabel = sat === 'ember' ? fmt(jmlRaw)+' ember ('+fmt(jmlKg)+' kg)' : fmt(jmlKg)+' kg';
-  const b = document.getElementById('bma'); b.disabled=true; setSy('sy');
+  const satuanLabel = sat==='ember' ? fmt(jmlRaw)+' ember ('+fmt(jmlKg)+' kg)' : fmt(jmlKg)+' kg';
+  const b=document.getElementById('bma'); b.disabled=true; setSy('sy');
   try {
     await dbUS({ampas_basah: D.stok.ampas_basah+jmlKg});
-    await dbAT({
-      tipe:'masuk',
-      tanggal:document.getElementById('maTgl').value||tdy(),
-      jumlah:jmlKg,
+    await dbAT({tipe:'masuk', tanggal:document.getElementById('maTgl').value||tdy(), jumlah:jmlKg,
       harga:parseFloat(document.getElementById('maHrg').value)||0,
       detail:'Ampas Basah dari '+(document.getElementById('maSup').value||'-')+' ('+satuanLabel+')',
-      // FIX #2: ket sekarang tersimpan
-      ket:document.getElementById('maKet').value||''
-    });
+      ket:document.getElementById('maKet').value||''});
     setSy('ok'); toast('+'+fmt(jmlKg)+' kg Ampas Basah disimpan');
     ['maJml','maHrg','maSup','maKet'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('maSat').value='kg'; updMaSat();
+    document.getElementById('maSat').value='kg'; updMaSat(); rdDb();
+  } catch(e){setSy('er');toast('Gagal: '+e.message,'er');}
+  b.disabled=false;
+}
+
+// ── PRODUKSI (alur baru: input hasil jadi + ember) ──
+function pvPr() {
+  const ember = parseFloat(document.getElementById('prEmber').value)||0;
+  const bk    = parseFloat(document.getElementById('prBk').value)||0;
+  const sp    = parseFloat(document.getElementById('prSp').value)||0;
+  const ampasEst = ember * 18;
+  const el = document.getElementById('prAmpasEst');
+  if(ember>0) {
+    el.textContent = '≈ '+fmt(ampasEst)+' kg ('+fmt(ember)+' ember × 18 kg)';
+    el.style.color = 'var(--amber)';
+  } else {
+    el.textContent = '— kg';
+    el.style.color = 'var(--text3)';
+  }
+  const p = document.getElementById('pvPrEl');
+  if(ember<=0 && bk<=0 && sp<=0){p.classList.remove('sh');return;}
+  const susut = Math.max(0, ampasEst - bk - sp);
+  const susutPct = ampasEst>0 ? (susut/ampasEst*100).toFixed(1) : '—';
+  document.getElementById('pvA').textContent = ampasEst>0 ? '-'+fmt(ampasEst)+' kg' : '—';
+  document.getElementById('pvB').textContent = '+'+fmt(bk)+' kg';
+  document.getElementById('pvS').textContent = '+'+fmt(sp)+' kg';
+  document.getElementById('pvSusut').textContent = fmt(susut)+' kg'+(ampasEst>0?' ('+susutPct+'%)':'');
+  p.classList.add('sh');
+}
+
+async function savePr() {
+  const ember = parseFloat(document.getElementById('prEmber').value)||0;
+  const bk    = parseFloat(document.getElementById('prBk').value)||0;
+  const sp    = parseFloat(document.getElementById('prSp').value)||0;
+  if(ember<=0){toast('Jumlah ember harus diisi','er');return;}
+  if(bk<=0&&sp<=0){toast('Isi minimal bungkil atau minyak spinner','er');return;}
+  const ampasEst = ember * 18;
+  if(D.stok.ampas_basah < ampasEst) {
+    setAl('alPr','Estimasi ampas ('+fmt(ampasEst)+' kg) melebihi stok tersedia ('+fmt(D.stok.ampas_basah)+' kg). Lanjutkan?');
+  }
+  setAl('alPr','');
+  const b=document.getElementById('bpr'); b.disabled=true; setSy('sy');
+  try {
+    await dbUS({ampas_basah: Math.max(0, D.stok.ampas_basah-ampasEst), bungkil: D.stok.bungkil+bk, spinner: D.stok.spinner+sp});
+    await dbAT({tipe:'produksi', tanggal:document.getElementById('prTgl').value||tdy(),
+      jumlah:ampasEst, harga:0,
+      detail:'Produksi '+fmt(ember)+' ember: +'+fmt(bk)+'kg bungkil, +'+fmt(sp)+'kg spinner',
+      ket:document.getElementById('prKet').value||''});
+    setSy('ok'); toast('Produksi '+fmt(ember)+' ember berhasil disimpan');
+    ['prEmber','prBk','prSp','prKet'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('prAmpasEst').textContent='— kg';
+    document.getElementById('pvPrEl').classList.remove('sh');
     rdDb();
   } catch(e){setSy('er');toast('Gagal: '+e.message,'er');}
   b.disabled=false;
 }
 
-// FIX #5: Susut manual — sync antara 3 field rasio
-function ldR(){
-  document.getElementById('rB').value=D.rasio.bungkil;
-  document.getElementById('rS').value=D.rasio.spinner;
-  // Susut dari data atau hitung otomatis jika tidak ada
-  const susut = D.rasio.susut !== undefined ? D.rasio.susut : Math.max(0, 100 - D.rasio.bungkil - D.rasio.spinner);
-  document.getElementById('rL').value = susut.toFixed(1);
-}
-
-function updR(){
-  // Saat bungkil atau spinner diubah, susut ikut update otomatis
-  const b=parseFloat(document.getElementById('rB').value)||0;
-  const s=parseFloat(document.getElementById('rS').value)||0;
-  const susut = Math.max(0, 100-b-s);
-  document.getElementById('rL').value = susut.toFixed(1);
-  D.rasio.susut = susut;
-}
-
-function updRSusut(){
-  // Saat susut diubah manual, sesuaikan spinner
-  const b=parseFloat(document.getElementById('rB').value)||0;
-  const susut=parseFloat(document.getElementById('rL').value)||0;
-  const s = Math.max(0, 100-b-susut);
-  document.getElementById('rS').value = s.toFixed(1);
-  D.rasio.spinner = s;
-  D.rasio.susut = susut;
-}
-
-async function saveR() {
-  const b=parseFloat(document.getElementById('rB').value)||0;
-  const s=parseFloat(document.getElementById('rS').value)||0;
-  const susut=parseFloat(document.getElementById('rL').value)||0;
-  if(b+s+susut>100.1){toast('Total rasio melebihi 100%','er');return;}
-  setSy('sy');
-  try {
-    await api('PATCH','rasio','id=eq.bungkil',{nilai:b});
-    await api('PATCH','rasio','id=eq.spinner',{nilai:s});
-    // Simpan susut jika ada kolom susut di DB, otherwise skip
-    try { await api('PATCH','rasio','id=eq.susut',{nilai:susut}); } catch(e2){}
-    D.rasio={bungkil:b,spinner:s,susut:susut};
-    setSy('ok'); toast('Rasio diperbarui');
-  } catch(e){setSy('er');toast('Gagal: '+e.message,'er');}
-}
-
-function pvPr(){
-  const j=parseFloat(document.getElementById('prJml').value)||0;
-  const p=document.getElementById('pvPrEl');
-  if(j<=0){p.classList.remove('sh');return;}
-  const b=parseFloat(document.getElementById('rB').value)||0;
-  const s=parseFloat(document.getElementById('rS').value)||0;
-  const susut=parseFloat(document.getElementById('rL').value)||0;
-  document.getElementById('pvA').textContent='-'+fmt(j)+' kg';
-  document.getElementById('pvB').textContent='+'+fmt(j*b/100)+' kg';
-  document.getElementById('pvS').textContent='+'+fmt(j*s/100)+' kg';
-  document.getElementById('pvSusut').textContent=fmt(j*susut/100)+' kg ('+susut+'%)';
-  p.classList.add('sh');
-}
-
-async function savePr() {
-  const jml=parseFloat(document.getElementById('prJml').value);
-  if(!jml||jml<=0){toast('Jumlah harus diisi','er');return;}
-  if(D.stok.ampas_basah<jml){setAl('alPr','Stok ampas basah tidak cukup. Tersedia: '+fmt(D.stok.ampas_basah)+' kg');return;}
-  setAl('alPr','');
-  const b=parseFloat(document.getElementById('rB').value)||0;
-  const s=parseFloat(document.getElementById('rS').value)||0;
-  const bk=jml*b/100, sp=jml*s/100;
-  const btn=document.getElementById('bpr'); btn.disabled=true; setSy('sy');
-  try {
-    await dbUS({ampas_basah:D.stok.ampas_basah-jml, bungkil:D.stok.bungkil+bk, spinner:D.stok.spinner+sp});
-    await dbAT({
-      tipe:'produksi',
-      tanggal:document.getElementById('prTgl').value||tdy(),
-      jumlah:jml,harga:0,
-      detail:'Produksi: -'+fmt(jml)+'kg ampas, +'+fmt(bk)+'kg bungkil, +'+fmt(sp)+'kg spinner',
-      ket:document.getElementById('prKet').value||''
-    });
-    setSy('ok'); toast('Produksi '+fmt(jml)+' kg berhasil');
-    document.getElementById('prJml').value=''; document.getElementById('prKet').value='';
-    document.getElementById('pvPrEl').classList.remove('sh'); rdDb();
-  } catch(e){setSy('er');toast('Gagal: '+e.message,'er');}
-  btn.disabled=false;
-}
-
-// FIX #4: Minyak JP tanpa field ampas diendapkan
+// ── MINYAK JP ──
 async function saveJp() {
   const h=parseFloat(document.getElementById('jpH').value);
   if(!h||h<=0){toast('Jumlah minyak JP harus diisi','er');return;}
@@ -585,13 +540,10 @@ async function saveJp() {
   const b=document.getElementById('bjp'); b.disabled=true; setSy('sy');
   try {
     await dbUS({jp:D.stok.jp+h});
-    await dbAT({
-      tipe:'jp',
-      tanggal:document.getElementById('jpTgl').value||tdy(),
-      jumlah:h,harga:0,
+    await dbAT({tipe:'jp', tanggal:document.getElementById('jpTgl').value||tdy(),
+      jumlah:h, harga:0,
       detail:'Minyak JP: +'+fmt(h)+' kg (pengendapan)',
-      ket:document.getElementById('jpKet').value||''
-    });
+      ket:document.getElementById('jpKet').value||''});
     setSy('ok'); toast('+'+fmt(h)+' kg Minyak JP disimpan');
     ['jpH','jpKet'].forEach(id=>document.getElementById(id).value='');
     rdDb();
@@ -599,21 +551,17 @@ async function saveJp() {
   b.disabled=false;
 }
 
+// ── UCO ──
 async function saveUc() {
   const jml=parseFloat(document.getElementById('ucJml').value);
   if(!jml||jml<=0){toast('Jumlah harus diisi','er');return;}
   const b=document.getElementById('buc'); b.disabled=true; setSy('sy');
   try {
     await dbUS({uco:D.stok.uco+jml});
-    await dbAT({
-      tipe:'uco_masuk',
-      tanggal:document.getElementById('ucTgl').value||tdy(),
-      jumlah:jml,
-      harga:parseFloat(document.getElementById('ucHrg').value)||0,
+    await dbAT({tipe:'uco_masuk', tanggal:document.getElementById('ucTgl').value||tdy(),
+      jumlah:jml, harga:parseFloat(document.getElementById('ucHrg').value)||0,
       detail:'UCO dari '+(document.getElementById('ucSup').value||'-'),
-      // FIX #2: keterangan UCO tersimpan
-      ket:document.getElementById('ucKet').value||''
-    });
+      ket:document.getElementById('ucKet').value||''});
     setSy('ok'); updUc(); toast('+'+fmt(jml)+' kg UCO disimpan');
     ['ucJml','ucHrg','ucSup','ucKet'].forEach(id=>document.getElementById(id).value='');
     rdDb();
@@ -629,18 +577,13 @@ function updUc(){
   document.getElementById('ucPL').textContent=fmt(kg)+' / 5.000 kg';
 }
 
-// FIX #3: Total otomatis di form penjualan
+// ── PENJUALAN ──
 function updKeTot() {
   const jml=parseFloat(document.getElementById('keJml').value)||0;
   const hrg=parseFloat(document.getElementById('keHrg').value)||0;
   const box=document.getElementById('keTotBox');
-  const val=document.getElementById('keTotVal');
-  if(jml>0&&hrg>0){
-    val.textContent=fmtRp(jml*hrg);
-    box.style.display='';
-  } else {
-    box.style.display='none';
-  }
+  if(jml>0&&hrg>0){document.getElementById('keTotVal').textContent=fmtRp(jml*hrg);box.style.display='';}
+  else box.style.display='none';
 }
 
 async function saveKe() {
@@ -652,15 +595,10 @@ async function saveKe() {
   const b=document.getElementById('bke'); b.disabled=true; setSy('sy');
   try {
     await dbUS({[prd]:D.stok[prd]-jml});
-    await dbAT({
-      tipe:'keluar',
-      tanggal:document.getElementById('keTgl').value||tdy(),
-      jumlah:jml,
-      harga:parseFloat(document.getElementById('keHrg').value)||0,
+    await dbAT({tipe:'keluar', tanggal:document.getElementById('keTgl').value||tdy(),
+      jumlah:jml, harga:parseFloat(document.getElementById('keHrg').value)||0,
       detail:'Jual '+nm+' ke '+(document.getElementById('kePmb').value||'-'),
-      // FIX #2: keterangan penjualan tersimpan
-      ket:document.getElementById('keKet').value||''
-    });
+      ket:document.getElementById('keKet').value||''});
     setSy('ok'); if(prd==='uco') updUc(); toast('Penjualan '+fmt(jml)+' kg '+nm+' disimpan');
     ['keJml','keHrg','kePmb','keKet'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('keTotBox').style.display='none';
@@ -669,22 +607,38 @@ async function saveKe() {
   b.disabled=false;
 }
 
-// FIX #1 & #3: Filter by nama + Total untuk semua tipe transaksi
+// ── STOK AWAL ──
+async function saveSa() {
+  const prd = document.getElementById('saPrd').value;
+  const jml = parseFloat(document.getElementById('saJml').value);
+  if(!jml||jml<=0){toast('Jumlah harus diisi','er');return;}
+  const nm = {ampas_basah:'Ampas Basah',bungkil:'Bungkil',spinner:'Minyak Spinner',jp:'Minyak JP',uco:'UCO'}[prd];
+  const b=document.getElementById('bsa'); b.disabled=true; setSy('sy');
+  try {
+    await dbUS({[prd]: D.stok[prd]+jml});
+    await dbAT({tipe:'stok_awal', tanggal:document.getElementById('saTgl').value||tdy(),
+      jumlah:jml, harga:0,
+      detail:'Stok Awal '+nm+': +'+fmt(jml)+' kg',
+      ket:document.getElementById('saKet').value||'Stok awal'});
+    setSy('ok'); if(prd==='uco') updUc(); toast('+'+fmt(jml)+' kg '+nm+' ditambahkan sebagai stok awal');
+    ['saJml','saKet'].forEach(id=>document.getElementById(id).value='');
+    rdDb();
+  } catch(e){setSy('er');toast('Gagal: '+e.message,'er');}
+  b.disabled=false;
+}
+
+// ── RIWAYAT ──
 function rdRw() {
-  const ft=document.getElementById('fTp').value;
-  const fb=document.getElementById('fBl').value;
-  // FIX #1: filter nama supplier/pembeli
-  const fn=(document.getElementById('fNama').value||'').toLowerCase().trim();
-  let data=[...D.tx];
+  const ft = document.getElementById('fTp').value;
+  const fb = document.getElementById('fBl').value;
+  const fn = (document.getElementById('fNama').value||'').toLowerCase().trim();
+  let data = [...D.tx];
   if(ft) data=data.filter(t=>t.tipe===ft);
   if(fb) data=data.filter(t=>t.tanggal&&t.tanggal.startsWith(fb));
-  // Filter nama: cari di field detail yang mengandung nama supplier/pembeli
   if(fn) data=data.filter(t=>(t.detail||'').toLowerCase().includes(fn)||(t.ket||'').toLowerCase().includes(fn));
-
   document.getElementById('rwb').innerHTML = data.length
     ? data.map(t=>{
-        // FIX #3: Total untuk semua tipe yang punya harga
-        const total = t.harga && t.jumlah ? fmtRp(t.harga * t.jumlah) : '-';
+        const total = t.harga&&t.jumlah ? fmtRp(t.harga*t.jumlah) : '-';
         return `<tr>
           <td>${t.tanggal||'-'}</td>
           <td>${BG[t.tipe]||t.tipe}</td>
@@ -701,17 +655,19 @@ function rdRw() {
 function expCSV() {
   const rows=[['Tanggal','Tipe','Detail','Jumlah (kg)','Harga/kg','Total','Keterangan']];
   D.tx.forEach(t=>{
-    const total = t.harga && t.jumlah ? t.harga*t.jumlah : '';
+    const total = t.harga&&t.jumlah ? t.harga*t.jumlah : '';
     rows.push([t.tanggal,t.tipe,t.detail||'',t.jumlah,t.harga||'',total,t.ket||'']);
   });
   const csv=rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
-  const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv); a.download='riwayat-stok.csv'; a.click();
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download='riwayat-stok.csv'; a.click();
   toast('CSV berhasil diexport');
 }
 
 // INIT
 document.getElementById('hd').textContent = new Date().toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-['maTgl','prTgl','jpTgl','ucTgl','keTgl'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=tdy(); });
+['maTgl','prTgl','jpTgl','ucTgl','keTgl','saTgl'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=tdy(); });
 loadAll();
 </script>
 
