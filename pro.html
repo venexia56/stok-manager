@@ -304,7 +304,7 @@ tr:hover td{background:var(–amber-dim);}
   <div class="pn"><div class="pnh"><div class="pnt">Input Ampas Basah</div></div><div class="pnb">
     <div class="fg">
       <div class="fg2"><label>Tanggal</label><input type="date" id="maTgl"></div>
-      <div class="fg2"><label>Satuan</label><select id="maSat" onchange="updMaSat()"><option value="kg">Kilogram (kg)</option><option value="ember">Ember (×18 kg)</option></select></div>
+      <div class="fg2"><label>Satuan</label><select id="maSat" onchange="updMaSat()"><option value="kg">Kilogram (kg)</option><option value="ember">Ember (×20 kg)</option></select></div>
       <div class="fg2"><label id="maJmlLbl">Jumlah (kg)</label><input type="number" id="maJml" placeholder="0" min="0" step="0.1" oninput="updMaSat()"></div>
       <div class="fg2" id="maKonBox" style="display:none;"><label>Konversi</label><div class="dv amber" id="maKonVal">0 kg</div></div>
       <div class="fg2"><label>Harga Beli/kg (Rp)</label><input type="number" id="maHrg" placeholder="0" oninput="updMaTot()"></div>
@@ -334,7 +334,6 @@ tr:hover td{background:var(–amber-dim);}
       <div class="ppt">Ringkasan Batch</div>
       <div class="ppr"><span>Ampas terpakai (est.)</span><span class="pm" id="pvA"></span></div>
       <div class="ppr"><span>Bungkil ditambah</span><span class="pp2" id="pvB"></span></div>
-      <div class="ppr"><span>Bungkil (karung)</span><span style="color:var(--text3);" id="pvBKarung"></span></div>
       <div class="ppr"><span>Spinner ditambah</span><span class="pp2" id="pvS"></span></div>
       <div class="ppr"><span>Susut aktual</span><span style="color:var(--text3);" id="pvSusut"></span></div>
     </div>
@@ -850,7 +849,7 @@ function pvPr(){
   const sp=parseFloat(document.getElementById('prSp').value)||0;
   const ampasEst=ember*20;
   const el=document.getElementById('prAmpasEst');
-  if(ember>0){el.textContent='≈ '+fmt(ampasEst)+' kg ('+fmt(ember)+' ember × 18 kg)';el.className='dv amber';}
+  if(ember>0){el.textContent='≈ '+fmt(ampasEst)+' kg ('+fmt(ember)+' ember × 20 kg)';el.className='dv amber';}
   else{el.textContent='— kg';el.className='dv muted';}
   const p=document.getElementById('pvPrEl');
   if(ember<=0&&bk<=0&&sp<=0){p.classList.remove('sh');return;}
@@ -864,26 +863,20 @@ function pvPr(){
 }
 async function savePr(){
   const ember=parseFloat(document.getElementById('prEmber').value)||0;
-  const bkKg=getPrBkKg();
-  const bkRaw=parseFloat(document.getElementById('prBk').value)||0;
-  const bkSat=document.getElementById('prBkSat').value;
+  const bkKg=parseFloat(document.getElementById('prBk').value)||0;
   const sp=parseFloat(document.getElementById('prSp').value)||0;
   if(ember<=0){toast('Jumlah ember harus diisi','er');return;}
   if(bkKg<=0&&sp<=0){toast('Isi minimal bungkil atau minyak spinner','er');return;}
   const ampasEst=ember*20;
-  const bkKarung=bkKg/50;
   setAl('alPr','');
   const btn=document.getElementById('bpr');btn.disabled=true;setSy('sy');
   try {
     await dbUS({ampas_basah:Math.max(0,D.stok.ampas_basah-ampasEst),bungkil:D.stok.bungkil+bkKg,spinner:D.stok.spinner+sp});
-    const bkLabel=bkSat==='karung'?fmt(bkRaw)+' karung ('+fmt(bkKg)+' kg)':fmt(bkKg)+' kg';
     await dbAT({tipe:'produksi',tanggal:document.getElementById('prTgl').value||tdy(),jumlah:ampasEst,harga:0,
-      detail:'Produksi '+fmt(ember)+' ember: +'+bkLabel+' bungkil (≈'+fmt(bkKarung)+' karung), +'+fmt(sp)+'kg spinner',
+      detail:'Produksi '+fmt(ember)+' ember: +'+fmt(bkKg)+'kg bungkil, +'+fmt(sp)+'kg spinner',
       ket:document.getElementById('prKet').value||''});
     setSy('ok');toast('Produksi '+fmt(ember)+' ember disimpan');
     ['prEmber','prBk','prSp','prKet'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('prBkSat').value='kg';
-    document.getElementById('prBkLbl').textContent='Bungkil Keluar (kg)';
     document.getElementById('prAmpasEst').textContent='— kg';document.getElementById('prAmpasEst').className='dv muted';
     document.getElementById('pvPrEl').classList.remove('sh');rdDb();
   }catch(e){setSy('er');toast('Gagal: '+e.message,'er');}
@@ -1219,14 +1212,10 @@ function updSaSat(){
     satLblType.textContent='Satuan Ampas';
     if(sat==='ember'){jmlLbl.textContent='Jumlah (ember)';const kg=jml*20;document.getElementById('saKonVal').textContent=fmt(kg)+' kg ('+fmt(jml)+' ember × 20 kg)';konBox.style.display='';}
     else{jmlLbl.textContent='Jumlah (kg)';konBox.style.display='none';}
-  } else if(prd==='bungkil'){
-    satBox.style.display='';
-    document.getElementById('saSat').innerHTML='<option value="kg">Kilogram (kg)</option><option value="karung">Karung (×50 kg)</option>';
-    satLblType.textContent='Satuan Bungkil';
-    if(sat==='karung'){jmlLbl.textContent='Jumlah (karung)';const kg=jml*50;const kar=jml;document.getElementById('saKonVal').textContent=fmt(kg)+' kg ('+fmt(kar)+' karung × 50 kg)';konBox.style.display='';}
-    else{jmlLbl.textContent='Jumlah (kg)';konBox.style.display='none';}
   } else {
-    satBox.style.display='none';konBox.style.display='none';jmlLbl.textContent='Jumlah (kg)';
+    satBox.style.display='none';konBox.style.display='none';
+    jmlLbl.textContent='Jumlah (kg)';
+    document.getElementById('saSat').value='kg';
   }
 }
 function getSaKg(){
@@ -1234,7 +1223,6 @@ function getSaKg(){
   const sat=document.getElementById('saSat').value;
   const jml=parseFloat(document.getElementById('saJml').value)||0;
   if(prd==='ampas_basah'&&sat==='ember') return jml*20;
-  if(prd==='bungkil'&&sat==='karung') return jml*50;
   return jml;
 }
 async function saveSa(){
@@ -1246,7 +1234,7 @@ async function saveSa(){
   const nm={ampas_basah:'Ampas Basah',bungkil:'Bungkil',spinner:'Minyak Spinner',jp:'Minyak JP',uco:'UCO'}[prd];
   let satuanLabel=fmt(jmlKg)+' kg';
   if(prd==='ampas_basah'&&sat==='ember') satuanLabel=fmt(jmlRaw)+' ember ('+fmt(jmlKg)+' kg)';
-  if(prd==='bungkil'&&sat==='karung') satuanLabel=fmt(jmlRaw)+' karung ('+fmt(jmlKg)+' kg, ≈'+fmt(jmlKg/50)+' karung)';
+
   const b=document.getElementById('bsa');b.disabled=true;setSy('sy');
   try {
     await dbUS({[prd]:D.stok[prd]+jmlKg});
