@@ -545,15 +545,59 @@ tr:hover td{background:var(–amber-dim);}
 <!-- ═══════════════════════════════ PENGATURAN ═══════════════════════════════ -->
 
 <div class="sc" id="sc-set">
-  <div class="ph2"><div class="st">Pengaturan</div><div class="ss">Konfigurasi target, bonus, dan potongan</div></div>
-  <div class="pn"><div class="pnh"><div class="pnt">Target & Skema Gaji (Kolektif)</div></div><div class="pnb">
+  <div class="ph2"><div class="st">Pengaturan</div><div class="ss">Konfigurasi target dan skema gaji per jabatan</div></div>
+
+  <!-- Target Kolektif -->
+
+  <div class="pn"><div class="pnh"><div class="pnt">Target Produksi Kolektif</div></div><div class="pnb">
     <div class="fg">
       <div class="fg2"><label>Target Bungkil/Bulan (kg)</label><input type="number" id="setTarget" placeholder="0"></div>
-      <div class="fg2"><label>Bonus Capai Target (Rp/orang)</label><input type="number" id="setBonus" placeholder="0"></div>
-      <div class="fg2"><label>Bonus Lebih Target (Rp/kg)</label><input type="number" id="setBonusKg" placeholder="0"></div>
-      <div class="fg2"><label>Potongan Kurang Target (Rp/kg)</label><input type="number" id="setPotKg" placeholder="0"></div>
     </div>
-    <button class="bt bp" onclick="saveSetting()">Simpan Pengaturan</button>
+    <button class="bt bp" onclick="saveSetting()">Simpan Semua Pengaturan</button>
+  </div></div>
+
+  <!-- Kepala Pabrik -->
+
+  <div class="pn"><div class="pnh"><div class="pnt">Kepala Pabrik</div></div><div class="pnb">
+    <div class="fg">
+      <div class="fg2"><label>Gaji Pokok (Rp)</label><input type="number" id="set_kepala_pabrik_gaji" placeholder="0"></div>
+      <div class="fg2"><label>Bonus Capai Target (Rp)</label><input type="number" id="set_kepala_pabrik_bonus_capai" placeholder="0"></div>
+      <div class="fg2"><label>Bonus Lebih Target (Rp/kg)</label><input type="number" id="set_kepala_pabrik_bonus_kg" placeholder="0"></div>
+      <div class="fg2"><label>Potongan Kurang Target (Rp/kg)</label><input type="number" id="set_kepala_pabrik_potongan_kg" placeholder="0"></div>
+    </div>
+  </div></div>
+
+  <!-- Staff Pabrik -->
+
+  <div class="pn"><div class="pnh"><div class="pnt">Staff Pabrik</div></div><div class="pnb">
+    <div class="fg">
+      <div class="fg2"><label>Gaji Pokok (Rp)</label><input type="number" id="set_staff_pabrik_gaji" placeholder="0"></div>
+      <div class="fg2"><label>Bonus Capai Target (Rp)</label><input type="number" id="set_staff_pabrik_bonus_capai" placeholder="0"></div>
+      <div class="fg2"><label>Bonus Lebih Target (Rp/kg)</label><input type="number" id="set_staff_pabrik_bonus_kg" placeholder="0"></div>
+      <div class="fg2"><label>Potongan Kurang Target (Rp/kg)</label><input type="number" id="set_staff_pabrik_potongan_kg" placeholder="0"></div>
+    </div>
+  </div></div>
+
+  <!-- Kepala Logistik -->
+
+  <div class="pn"><div class="pnh"><div class="pnt">Kepala Logistik</div></div><div class="pnb">
+    <div class="fg">
+      <div class="fg2"><label>Gaji Pokok (Rp)</label><input type="number" id="set_kepala_logistik_gaji" placeholder="0"></div>
+      <div class="fg2"><label>Bonus Capai Target (Rp)</label><input type="number" id="set_kepala_logistik_bonus_capai" placeholder="0"></div>
+      <div class="fg2"><label>Bonus Lebih Target (Rp/kg)</label><input type="number" id="set_kepala_logistik_bonus_kg" placeholder="0"></div>
+      <div class="fg2"><label>Potongan Kurang Target (Rp/kg)</label><input type="number" id="set_kepala_logistik_potongan_kg" placeholder="0"></div>
+    </div>
+  </div></div>
+
+  <!-- Staff Logistik -->
+
+  <div class="pn"><div class="pnh"><div class="pnt">Staff Logistik</div></div><div class="pnb">
+    <div class="fg">
+      <div class="fg2"><label>Gaji Pokok (Rp)</label><input type="number" id="set_staff_logistik_gaji" placeholder="0"></div>
+      <div class="fg2"><label>Bonus Capai Target (Rp)</label><input type="number" id="set_staff_logistik_bonus_capai" placeholder="0"></div>
+      <div class="fg2"><label>Bonus Lebih Target (Rp/kg)</label><input type="number" id="set_staff_logistik_bonus_kg" placeholder="0"></div>
+      <div class="fg2"><label>Potongan Kurang Target (Rp/kg)</label><input type="number" id="set_staff_logistik_potongan_kg" placeholder="0"></div>
+    </div>
   </div></div>
   <div class="pn" style="margin-top:4px;"><div class="pnh"><div class="pnt">Info Database</div></div><div class="pnb">
     <p style="font-size:12px;color:var(--text3);line-height:1.8;">
@@ -574,7 +618,14 @@ tr:hover td{background:var(–amber-dim);}
     <div class="modal-title" id="modalKaryTitle">Tambah Karyawan</div>
     <div class="fg">
       <div class="fg2 fu"><label>Nama Karyawan</label><input type="text" id="mkNama" placeholder="Nama lengkap"></div>
-      <div class="fg2 fu"><label>Posisi / Jabatan</label><input type="text" id="mkJabatan" placeholder="Contoh: Operator Mesin"></div>
+      <div class="fg2 fu"><label>Jabatan</label>
+        <select id="mkJabatan">
+          <option value="kepala_pabrik">Kepala Pabrik</option>
+          <option value="staff_pabrik">Staff Pabrik</option>
+          <option value="kepala_logistik">Kepala Logistik</option>
+          <option value="staff_logistik">Staff Logistik</option>
+        </select>
+      </div>
       <div class="fg2"><label>Gaji Pokok (Rp)</label><input type="number" id="mkGaji" placeholder="0"></div>
       <div class="fg2"><label>Kasbon Berjalan (Rp)</label><input type="number" id="mkKasbon" placeholder="0"></div>
     </div>
@@ -603,7 +654,13 @@ const H = {
 let D = {
   stok: {ampas_basah:0,bungkil:0,spinner:0,jp:0,uco:0},
   tx: [], keuangan: [], karyawan: [], payroll: [],
-  setting: {target_bungkil:0,bonus_capai:0,bonus_kg:0,potongan_kg:0}
+  setting: {
+    target_bungkil:0,
+    kepala_pabrik_gaji:0, kepala_pabrik_bonus_capai:0, kepala_pabrik_bonus_kg:0, kepala_pabrik_potongan_kg:0,
+    staff_pabrik_gaji:0, staff_pabrik_bonus_capai:0, staff_pabrik_bonus_kg:0, staff_pabrik_potongan_kg:0,
+    kepala_logistik_gaji:0, kepala_logistik_bonus_capai:0, kepala_logistik_bonus_kg:0, kepala_logistik_potongan_kg:0,
+    staff_logistik_gaji:0, staff_logistik_bonus_capai:0, staff_logistik_bonus_kg:0, staff_logistik_potongan_kg:0
+  }
 };
 
 const fmt    = n => parseFloat(n||0).toLocaleString('id-ID',{maximumFractionDigits:1});
@@ -927,7 +984,7 @@ function rdKaryawan(){
   document.getElementById('kwList').innerHTML=D.karyawan.length
     ?D.karyawan.map(k=>`<div class="kw-card">
         <div class="kw-name">${k.nama}</div>
-        <div class="kw-role">${k.jabatan||'Karyawan'}</div>
+        <div class="kw-role">${JABATAN_LABEL[k.jabatan]||k.jabatan||'Karyawan'}</div>
         <div class="kw-row"><span style="color:var(--text3);">Gaji Pokok</span><span>${fmtRp(k.gaji_pokok)}</span></div>
         <div class="kw-row"><span style="color:var(--text3);">Kasbon</span><span style="color:var(--red);">${k.kasbon>0?fmtRp(k.kasbon):'-'}</span></div>
         <div style="display:flex;gap:8px;margin-top:12px;">
@@ -970,7 +1027,7 @@ function loadPayBungkil(){
   document.getElementById('payBulan').value=bulan;
   const bungkil=getBungkilBulan(bulan);
   document.getElementById('payBungkil').textContent=fmt(bungkil)+' kg';
-  document.getElementById('payTarget').textContent=fmt(D.setting.target_bungkil)+' kg';
+  document.getElementById('payTarget').textContent=fmt(D.setting.target_bungkil||0)+' kg';
   const tgt=D.setting.target_bungkil||0;
   if(tgt>0){
     const selisih=bungkil-tgt;
@@ -985,6 +1042,7 @@ function getBungkilBulan(bulan){
     .reduce((a,t)=>{const m=t.detail.match(/\+([\d,.]+)kg bungkil/);return a+(m?parseFloat(m[1].replace(',','.'))||0:0);},0);
 }
 
+const JABATAN_LABEL={'kepala_pabrik':'Kepala Pabrik','staff_pabrik':'Staff Pabrik','kepala_logistik':'Kepala Logistik','staff_logistik':'Staff Logistik'};
 let _payrollCalc=[];
 function hitungGaji(){
   if(D.karyawan.length===0){toast('Belum ada karyawan','er');return;}
@@ -992,28 +1050,32 @@ function hitungGaji(){
   const bungkil=getBungkilBulan(bulan);
   const tgt=D.setting.target_bungkil||0;
   const selisih=bungkil-tgt;
-  const jmlKary=D.karyawan.length;
   _payrollCalc=D.karyawan.map(k=>{
+    const jab=k.jabatan||'staff_pabrik';
+    const gajiPokok=D.setting[jab+'_gaji']||k.gaji_pokok||0;
+    const bonusCapai=D.setting[jab+'_bonus_capai']||0;
+    const bonusKg=D.setting[jab+'_bonus_kg']||0;
+    const potKg=D.setting[jab+'_potongan_kg']||0;
     let bonus=0,potongan=0,info='';
     if(tgt>0){
       if(selisih>=0){
-        bonus+=D.setting.bonus_capai||0;
-        bonus+=((selisih/jmlKary)*(D.setting.bonus_kg||0));
+        bonus+=bonusCapai;
+        bonus+=selisih*bonusKg;
         info='Capai + lebih target';
       } else {
-        potongan+=(Math.abs(selisih)/jmlKary)*(D.setting.potongan_kg||0);
+        potongan+=Math.abs(selisih)*potKg;
         info='Kurang target';
       }
     }
     const kasbon=k.kasbon||0;
-    const total=k.gaji_pokok+bonus-potongan-kasbon;
-    return{...k,bulan,bungkil,bonus:Math.round(bonus),potongan:Math.round(potongan),kasbon,total:Math.round(total),info};
+    const total=gajiPokok+bonus-potongan-kasbon;
+    return{...k,jabatan_key:jab,jabatan_label:JABATAN_LABEL[jab]||jab,bulan,bungkil,gaji_pokok:gajiPokok,bonus:Math.round(bonus),potongan:Math.round(potongan),kasbon,total:Math.round(total),info};
   });
   document.getElementById('payPeriodeLbl').textContent=bulan;
   document.getElementById('paySlips').innerHTML=_payrollCalc.map(k=>`
     <div class="kw-card">
       <div class="kw-name">${k.nama}</div>
-      <div class="kw-role">${k.jabatan||'Karyawan'} — ${k.info||'Normal'}</div>
+      <div class="kw-role">${k.jabatan_label||k.jabatan||'Karyawan'} — ${k.info||'Normal'}</div>
       <div class="kw-row"><span style="color:var(--text3);">Gaji Pokok</span><span>${fmtRp(k.gaji_pokok)}</span></div>
       <div class="kw-row"><span style="color:var(--green);">Bonus</span><span style="color:var(--green);">${k.bonus>0?'+'+fmtRp(k.bonus):'-'}</span></div>
       <div class="kw-row"><span style="color:var(--red);">Potongan Kinerja</span><span style="color:var(--red);">${k.potongan>0?'-'+fmtRp(k.potongan):'-'}</span></div>
@@ -1146,17 +1208,28 @@ async function saveSa(){
 
 // ══════════════════ PENGATURAN ══════════════════
 function loadSetting(){
-  document.getElementById('setTarget').value=D.setting.target_bungkil||0;
-  document.getElementById('setBonus').value=D.setting.bonus_capai||0;
-  document.getElementById('setBonusKg').value=D.setting.bonus_kg||0;
-  document.getElementById('setPotKg').value=D.setting.potongan_kg||0;
+  const keys=['target_bungkil',
+    'kepala_pabrik_gaji','kepala_pabrik_bonus_capai','kepala_pabrik_bonus_kg','kepala_pabrik_potongan_kg',
+    'staff_pabrik_gaji','staff_pabrik_bonus_capai','staff_pabrik_bonus_kg','staff_pabrik_potongan_kg',
+    'kepala_logistik_gaji','kepala_logistik_bonus_capai','kepala_logistik_bonus_kg','kepala_logistik_potongan_kg',
+    'staff_logistik_gaji','staff_logistik_bonus_capai','staff_logistik_bonus_kg','staff_logistik_potongan_kg'];
+  keys.forEach(k=>{
+    const el=document.getElementById('set_'+k)||document.getElementById('setTarget');
+    if(k==='target_bungkil') document.getElementById('setTarget').value=D.setting[k]||0;
+    else if(document.getElementById('set_'+k)) document.getElementById('set_'+k).value=D.setting[k]||0;
+  });
 }
 async function saveSetting(){
-  const keys={target_bungkil:'setTarget',bonus_capai:'setBonus',bonus_kg:'setBonusKg',potongan_kg:'setPotKg'};
+  const allKeys=['target_bungkil',
+    'kepala_pabrik_gaji','kepala_pabrik_bonus_capai','kepala_pabrik_bonus_kg','kepala_pabrik_potongan_kg',
+    'staff_pabrik_gaji','staff_pabrik_bonus_capai','staff_pabrik_bonus_kg','staff_pabrik_potongan_kg',
+    'kepala_logistik_gaji','kepala_logistik_bonus_capai','kepala_logistik_bonus_kg','kepala_logistik_potongan_kg',
+    'staff_logistik_gaji','staff_logistik_bonus_capai','staff_logistik_bonus_kg','staff_logistik_potongan_kg'];
   setSy('sy');
   try {
-    for(const [key,elId] of Object.entries(keys)){
-      const val=parseFloat(document.getElementById(elId).value)||0;
+    for(const key of allKeys){
+      const elId = key==='target_bungkil'?'setTarget':'set_'+key;
+      const val=parseFloat(document.getElementById(elId)?.value)||0;
       try{await api('PATCH','pengaturan','key=eq.'+key,{value:val});}
       catch(e2){await api('POST','pengaturan','',{key,value:val});}
       D.setting[key]=val;
