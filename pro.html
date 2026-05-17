@@ -1310,6 +1310,52 @@ function rdRw(){
     ?data.map(t=>{const total=t.harga&&t.jumlah?fmtRp(t.harga*t.jumlah):'-';return`<tr><td>${t.tanggal||'-'}</td><td>${BG[t.tipe]||t.tipe}</td><td style="color:var(--text);max-width:200px;">${t.detail||'-'}</td><td>${fmt(t.jumlah)} kg</td><td>${t.harga?fmtRp(t.harga):'-'}</td><td style="color:var(--amber);font-weight:500;">${total}</td><td>${t.ket||'-'}</td><td><button class="bt bs bsm" onclick="showEditTx('${t.id}')">Edit</button></td></tr>`;}).join('')
     :'<tr><td colspan="7"><div class="es">Belum ada data</div></td></tr>';
 }
+// ── STOK AWAL ──
+function updSaAmpas(){
+  const ember=parseFloat(document.getElementById('saEmber').value)||0;
+  const el=document.getElementById('saAmpasKg');
+  if(ember>0){el.textContent=fmt(ember*20)+' kg ('+fmt(ember)+' ember × 20 kg)';el.style.color='var(--amber)';}
+  else{el.textContent='— kg';el.style.color='var(--text3)';}
+}
+
+const SA_NM={ampas_basah:'Ampas Basah',bungkil:'Bungkil',spinner:'Minyak Spinner',jp:'Minyak JP',uco:'UCO'};
+
+async function saveSaProduk(prd){
+  let jmlKg=0,detail='',tanggal='',ket='';
+  if(prd==='ampas_basah'){
+    const ember=parseFloat(document.getElementById('saEmber').value)||0;
+    if(!ember||ember<=0){toast('Jumlah ember harus diisi','er');return;}
+    jmlKg=ember*20;
+    detail='Stok Awal Ampas Basah: '+fmt(ember)+' ember ('+fmt(jmlKg)+' kg)';
+    tanggal=document.getElementById('saTgl_ampas').value||tdy();
+    ket=document.getElementById('saKet_ampas').value||'Stok awal';
+  } else {
+    jmlKg=parseFloat(document.getElementById('saJml_'+prd).value)||0;
+    if(!jmlKg||jmlKg<=0){toast('Jumlah harus diisi','er');return;}
+    detail='Stok Awal '+SA_NM[prd]+': +'+fmt(jmlKg)+' kg';
+    tanggal=document.getElementById('saTgl_'+prd).value||tdy();
+    ket=document.getElementById('saKet_'+prd).value||'Stok awal';
+  }
+  setSy('sy');
+  try {
+    await dbUS({[prd]:D.stok[prd]+jmlKg});
+    await dbAT({tipe:'stok_awal',tanggal,jumlah:jmlKg,harga:0,detail,ket});
+    setSy('ok');
+    if(prd==='uco') updUc();
+    toast('+'+fmt(jmlKg)+' kg '+SA_NM[prd]+' ditambahkan sebagai stok awal');
+    if(prd==='ampas_basah'){
+      document.getElementById('saEmber').value='';
+      document.getElementById('saKet_ampas').value='';
+      document.getElementById('saAmpasKg').textContent='— kg';
+      document.getElementById('saAmpasKg').style.color='var(--text3)';
+    } else {
+      document.getElementById('saJml_'+prd).value='';
+      document.getElementById('saKet_'+prd).value='';
+    }
+    rdDb();
+  } catch(e){setSy('er');toast('Gagal: '+e.message,'er');}
+}
+
 let _editTxId=null;
 let _editTxOld=null;
 
@@ -1470,71 +1516,10 @@ function expCSV(){
 }
 
 // ══════════════════ STOK AWAL ══════════════════
-function updSaSat(){
-  // Dipanggil saat ganti produk atau ganti satuan
-  const prd=document.getElementById('saPrd').value;
-  const satEl=document.getElementById('saSat');
-  const satBox=document.getElementById('saSatBox');
-  const konBox=document.getElementById('saKonBox');
-  const jmlLbl=document.getElementById('saJmlLbl');
-  const satLblType=document.getElementById('saSatLblType');
-  if(prd==='ampas_basah'){
-    satBox.style.display='';
-    satEl.innerHTML='<option value="kg">Kilogram (kg)</option><option value="ember">Ember (×20 kg)</option>';
-    satLblType.textContent='Satuan Ampas';
-  } else {
-    satBox.style.display='none';konBox.style.display='none';
-    jmlLbl.textContent='Jumlah (kg)';
-    satEl.value='kg';
-    document.getElementById('saJml').value='';
-    return;
-  }
-  updSaKonversi();
-}
-function updSaKonversi(){
-  // Dipanggil saat input angka — TIDAK reset satuan
-  const prd=document.getElementById('saPrd').value;
-  const sat=document.getElementById('saSat').value;
-  const jml=parseFloat(document.getElementById('saJml').value)||0;
-  const konBox=document.getElementById('saKonBox');
-  const jmlLbl=document.getElementById('saJmlLbl');
-  if(prd==='ampas_basah'&&sat==='ember'){
-    jmlLbl.textContent='Jumlah (ember)';
-    document.getElementById('saKonVal').textContent=fmt(jml*20)+' kg ('+fmt(jml)+' ember × 20 kg)';
-    konBox.style.display='';
-  } else {
-    jmlLbl.textContent='Jumlah (kg)';
-    konBox.style.display='none';
-  }
-}
-function getSaKg(){
-  const prd=document.getElementById('saPrd').value;
-  const sat=document.getElementById('saSat').value;
-  const jml=parseFloat(document.getElementById('saJml').value)||0;
-  if(prd==='ampas_basah'&&sat==='ember') return jml*20;
-  return jml;
-}
-async function saveSa(){
-  const prd=document.getElementById('saPrd').value;
-  const jmlKg=getSaKg();
-  const jmlRaw=parseFloat(document.getElementById('saJml').value)||0;
-  const sat=document.getElementById('saSat').value;
-  if(!jmlKg||jmlKg<=0){toast('Jumlah harus diisi','er');return;}
-  const nm={ampas_basah:'Ampas Basah',bungkil:'Bungkil',spinner:'Minyak Spinner',jp:'Minyak JP',uco:'UCO'}[prd];
-  let satuanLabel=fmt(jmlKg)+' kg';
-  if(prd==='ampas_basah'&&sat==='ember') satuanLabel=fmt(jmlRaw)+' ember ('+fmt(jmlKg)+' kg)';
 
-  const b=document.getElementById('bsa');b.disabled=true;setSy('sy');
-  try {
-    await dbUS({[prd]:D.stok[prd]+jmlKg});
-    await dbAT({tipe:'stok_awal',tanggal:document.getElementById('saTgl').value||tdy(),jumlah:jmlKg,harga:0,
-      detail:'Stok Awal '+nm+': +'+satuanLabel,ket:document.getElementById('saKet').value||'Stok awal'});
-    setSy('ok');if(prd==='uco')updUc();toast('+'+fmt(jmlKg)+' kg '+nm+' ditambahkan sebagai stok awal');
-    ['saJml','saKet'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('saSat').value='kg';updSaSat();rdDb();
-  }catch(e){setSy('er');toast('Gagal: '+e.message,'er');}
-  b.disabled=false;
-}
+
+
+
 
 // ══════════════════ PENGATURAN ══════════════════
 function loadSetting(){
