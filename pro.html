@@ -623,17 +623,20 @@ tr:hover td{background:var(–amber-dim);}
 <div class="modal-overlay" id="modalEditTx">
   <div class="modal">
     <div class="modal-title">Edit Transaksi</div>
-    <div class="aw" style="margin-bottom:14px;">⚠ Edit hanya mengubah catatan. Stok tidak ikut disesuaikan secara otomatis.</div>
+    <div class="ai" style="margin-bottom:14px;" id="etInfo">Stok akan disesuaikan otomatis berdasarkan selisih jumlah.</div>
     <div class="fg">
+      <div class="fg2"><label>Tipe</label><div class="dv muted" id="etTipe">—</div></div>
+      <div class="fg2"><label>Jumlah Lama (kg)</label><div class="dv muted" id="etJmlLama">—</div></div>
       <div class="fg2"><label>Tanggal</label><input type="date" id="etTgl"></div>
-      <div class="fg2"><label>Jumlah (kg)</label><input type="number" id="etJml" placeholder="0" step="0.1"></div>
+      <div class="fg2"><label>Jumlah Baru (kg)</label><input type="number" id="etJml" placeholder="0" step="0.1" oninput="updEtSelisih()"></div>
+      <div class="fg2"><label>Selisih Stok</label><div class="dv" id="etSelisih" style="color:var(--text3);">—</div></div>
       <div class="fg2"><label>Harga/kg (Rp)</label><input type="number" id="etHrg" placeholder="0"></div>
       <div class="fg2 fu"><label>Detail</label><input type="text" id="etDetail"></div>
       <div class="fg2 fu"><label>Keterangan</label><input type="text" id="etKet"></div>
     </div>
     <div class="modal-footer">
       <button class="bt bs" onclick="closeEditTx()">Batal</button>
-      <button class="bt bp" onclick="saveEditTx()">Simpan Perubahan</button>
+      <button class="bt bp" onclick="saveEditTx()">Simpan & Update Stok</button>
     </div>
   </div>
 </div>
@@ -1210,33 +1213,121 @@ function rdRw(){
     :'<tr><td colspan="7"><div class="es">Belum ada data</div></td></tr>';
 }
 let _editTxId=null;
+let _editTxOld=null;
+
+const TIPE_LABEL={masuk:'Bahan Masuk',produksi:'Produksi',jp:'Minyak JP',uco_masuk:'UCO Masuk',keluar:'Penjualan',stok_awal:'Stok Awal'};
+
+// Tentukan produk stok yang terdampak per tipe transaksi
+function getStokKey(tipe){
+  if(tipe==='masuk') return 'ampas_basah';
+  if(tipe==='stok_awal'){
+    // baca dari detail untuk tahu produk apa
+    const d=_editTxOld?.detail||'';
+    if(d.includes('Bungkil')) return 'bungkil';
+    if(d.includes('Spinner')||d.includes('spinner')) return 'spinner';
+    if(d.includes('Minyak JP')||d.includes('JP')) return 'jp';
+    if(d.includes('UCO')) return 'uco';
+    return 'ampas_basah';
+  }
+  if(tipe==='jp') return 'jp';
+  if(tipe==='uco_masuk') return 'uco';
+  if(tipe==='keluar'){
+    const d=_editTxOld?.detail||'';
+    if(d.includes('Bungkil')) return 'bungkil';
+    if(d.includes('Spinner')||d.includes('spinner')) return 'spinner';
+    if(d.includes('Minyak JP')||d.includes('JP')) return 'jp';
+    if(d.includes('UCO')) return 'uco';
+    return 'bungkil';
+  }
+  return null; // produksi ditangani sendiri
+}
+
+function updEtSelisih(){
+  if(!_editTxOld) return;
+  const jmlBaru=parseFloat(document.getElementById('etJml').value)||0;
+  const jmlLama=_editTxOld.jumlah||0;
+  const selisih=jmlBaru-jmlLama;
+  const el=document.getElementById('etSelisih');
+  if(selisih===0){el.textContent='Tidak ada perubahan';el.style.color='var(--text3)';}
+  else if(selisih>0){el.textContent='+'+fmt(selisih)+' kg';el.style.color='var(--green)';}
+  else{el.textContent=fmt(selisih)+' kg';el.style.color='var(--red)';}
+}
+
 function showEditTx(id){
   const t=D.tx.find(x=>x.id===id);if(!t)return;
   _editTxId=id;
+  _editTxOld={...t};
+  document.getElementById('etTipe').textContent=TIPE_LABEL[t.tipe]||t.tipe;
+  document.getElementById('etJmlLama').textContent=fmt(t.jumlah)+' kg';
   document.getElementById('etTgl').value=t.tanggal||'';
   document.getElementById('etJml').value=t.jumlah||0;
   document.getElementById('etHrg').value=t.harga||0;
   document.getElementById('etDetail').value=t.detail||'';
   document.getElementById('etKet').value=t.ket||'';
+  updEtSelisih();
+  // Info khusus produksi
+  const infoEl=document.getElementById('etInfo');
+  if(t.tipe==='produksi'){
+    infoEl.textContent='⚠ Untuk produksi: edit jumlah akan menyesuaikan ampas basah. Bungkil & spinner tidak berubah otomatis.';
+    infoEl.className='aw';
+  } else {
+    infoEl.textContent='✓ Stok akan disesuaikan otomatis berdasarkan selisih jumlah.';
+    infoEl.className='ai';
+  }
   document.getElementById('modalEditTx').classList.add('sh');
 }
-function closeEditTx(){document.getElementById('modalEditTx').classList.remove('sh');_editTxId=null;}
+
+function closeEditTx(){
+  document.getElementById('modalEditTx').classList.remove('sh');
+  _editTxId=null;_editTxOld=null;
+}
+
 async function saveEditTx(){
-  if(!_editTxId){toast('Transaksi tidak ditemukan','er');return;}
+  if(!_editTxId||!_editTxOld){toast('Transaksi tidak ditemukan','er');return;}
+  const jmlBaru=parseFloat(document.getElementById('etJml').value)||0;
+  const jmlLama=_editTxOld.jumlah||0;
+  const selisih=jmlBaru-jmlLama;
+  const tipe=_editTxOld.tipe;
   const upd={
     tanggal:document.getElementById('etTgl').value,
-    jumlah:parseFloat(document.getElementById('etJml').value)||0,
+    jumlah:jmlBaru,
     harga:parseFloat(document.getElementById('etHrg').value)||0,
     detail:document.getElementById('etDetail').value,
     ket:document.getElementById('etKet').value
   };
   setSy('sy');
   try {
+    // Update catatan transaksi
     await api('PATCH','transaksi','id=eq.'+_editTxId,upd);
     const idx=D.tx.findIndex(x=>x.id===_editTxId);
     if(idx>=0) D.tx[idx]={...D.tx[idx],...upd};
-    setSy('ok');toast('Transaksi berhasil diupdate');
-    closeEditTx();rdRw();rdDb();
+
+    // Update stok berdasarkan selisih
+    if(selisih!==0){
+      if(tipe==='produksi'){
+        // Produksi: hanya sesuaikan ampas basah
+        const newAmpas=Math.max(0,D.stok.ampas_basah+selisih);
+        await dbUS({ampas_basah:newAmpas});
+      } else if(['masuk','stok_awal','jp','uco_masuk'].includes(tipe)){
+        // Tipe masuk: stok bertambah sesuai selisih
+        const key=getStokKey(tipe);
+        if(key){
+          const newVal=Math.max(0,D.stok[key]+selisih);
+          await dbUS({[key]:newVal});
+        }
+      } else if(tipe==='keluar'){
+        // Tipe keluar: stok berkurang sesuai selisih (jual lebih banyak = stok makin berkurang)
+        const key=getStokKey(tipe);
+        if(key){
+          const newVal=Math.max(0,D.stok[key]-selisih);
+          await dbUS({[key]:newVal});
+        }
+      }
+    }
+
+    setSy('ok');
+    toast('Transaksi & stok berhasil diupdate');
+    closeEditTx();rdRw();rdDb();rdSt();
   }catch(e){setSy('er');toast('Gagal: '+e.message,'er');}
 }
 
