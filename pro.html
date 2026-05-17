@@ -475,7 +475,7 @@ tr:hover td{background:var(–amber-dim);}
   <!-- Riwayat payroll -->
 
   <div class="pn"><div class="pnh"><div class="pnt">Riwayat Payroll</div></div><div class="pnb" style="padding:0;">
-    <div class="tw"><table><thead><tr><th>Periode</th><th>Karyawan</th><th>Gaji Pokok</th><th>Bonus</th><th>Potongan</th><th>Total</th></tr></thead><tbody id="payHist"></tbody></table></div>
+    <div class="tw"><table><thead><tr><th>Periode</th><th>Karyawan</th><th>Gaji Pokok</th><th>Bonus</th><th>Potongan</th><th>Total</th><th>Aksi</th></tr></thead><tbody id="payHist"></tbody></table></div>
   </div></div>
 </div>
 
@@ -673,6 +673,21 @@ tr:hover td{background:var(–amber-dim);}
     <div class="modal-footer">
       <button class="bt bs" onclick="closeEditTx()">Batal</button>
       <button class="bt bp" onclick="saveEditTx()">Simpan & Update Stok</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL KONFIRMASI HAPUS -->
+
+<div class="modal-overlay" id="modalKonfirmHapus">
+  <div class="modal" style="max-width:360px;">
+    <div class="modal-title" style="color:var(--red);">⚠ Konfirmasi Hapus</div>
+    <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:8px;" id="konfirmMsg">Yakin ingin menghapus data ini?</p>
+    <p style="font-size:11px;color:var(--text3);margin-bottom:4px;" id="konfirmStokMsg"></p>
+    <p style="font-size:11px;color:var(--red);margin-top:8px;">Data yang dihapus tidak bisa dikembalikan.</p>
+    <div class="modal-footer">
+      <button class="bt bs" onclick="closeKonfirmHapus()">Batal</button>
+      <button class="bt" style="background:var(--red);color:#fff;" id="btnKonfirmHapus">Ya, Hapus</button>
     </div>
   </div>
 </div>
@@ -1091,7 +1106,7 @@ function rdKeu(){
     <div class="sc2"><div class="sl">Saldo</div><div class="sv" style="color:${saldo>=0?'var(--green)':'var(--red)'}">${fmtRp(saldo)}</div></div>`;
   const katLabel={modal_awal:'Modal Awal',penjualan:'Penjualan',bahan_baku:'Bahan Baku',operasional:'Operasional',gaji:'Gaji & Upah',transport:'Transportasi',perawatan:'Perawatan Mesin',lainnya:'Lainnya'};
   document.getElementById('keuTbl').innerHTML=data.length
-    ?data.map(k=>`<tr><td>${k.tanggal||'-'}</td><td><span class="bg2 ${k.jenis==='masuk'?'bm':'bk'}">${k.jenis==='masuk'?'Masuk':'Keluar'}</span></td><td>${katLabel[k.kategori]||k.kategori}</td><td style="color:${k.jenis==='masuk'?'var(--green)':'var(--red)'};font-weight:500;">${fmtRp(k.jumlah)}</td><td>${k.ket||'-'}</td><td><button class="bt bs bsm" onclick="showEditKeu('${k.id}')">Edit</button></td></tr>`).join('')
+    ?data.map(k=>`<tr><td>${k.tanggal||'-'}</td><td><span class="bg2 ${k.jenis==='masuk'?'bm':'bk'}">${k.jenis==='masuk'?'Masuk':'Keluar'}</span></td><td>${katLabel[k.kategori]||k.kategori}</td><td style="color:${k.jenis==='masuk'?'var(--green)':'var(--red)'};font-weight:500;">${fmtRp(k.jumlah)}</td><td>${k.ket||'-'}</td><td style="white-space:nowrap;"><button class="bt bs bsm" onclick="showEditKeu('${k.id}')">Edit</button> <button class="bt bsm" style="border:1px solid rgba(224,92,92,0.4);color:var(--red);" onclick="confirmHapusKeu('${k.id}')">Hapus</button></td></tr>`).join('')
     :'<tr><td colspan="5"><div class="es">Belum ada data</div></td></tr>';
 }
 
@@ -1221,7 +1236,7 @@ async function savePayroll(){
 
 function rdPayHist(){
   document.getElementById('payHist').innerHTML=D.payroll.length
-    ?D.payroll.map(p=>`<tr><td>${p.periode}</td><td>${p.nama}</td><td>${fmtRp(p.gaji_pokok)}</td><td style="color:var(--green);">${p.bonus>0?fmtRp(p.bonus):'-'}</td><td style="color:var(--red);">${(p.potongan>0||p.kasbon>0)?fmtRp((p.potongan||0)+(p.kasbon||0)):'-'}</td><td style="color:var(--amber);font-weight:500;">${fmtRp(p.total)}</td></tr>`).join('')
+    ?D.payroll.map(p=>`<tr><td>${p.periode}</td><td>${p.nama}</td><td>${fmtRp(p.gaji_pokok)}</td><td style="color:var(--green);">${p.bonus>0?fmtRp(p.bonus):'-'}</td><td style="color:var(--red);">${(p.potongan>0||p.kasbon>0)?fmtRp((p.potongan||0)+(p.kasbon||0)):'-'}</td><td style="color:var(--amber);font-weight:500;">${fmtRp(p.total)}</td><td><button class="bt bsm" style="border:1px solid rgba(224,92,92,0.4);color:var(--red);" onclick="confirmHapusPay('${p.id}','${p.nama}','${p.periode}')">Hapus</button></td></tr>`).join('')
     :'<tr><td colspan="6"><div class="es">Belum ada riwayat payroll</div></td></tr>';
 }
 
@@ -1307,7 +1322,7 @@ function rdRw(){
   if(fb) data=data.filter(t=>t.tanggal&&t.tanggal.startsWith(fb));
   if(fn) data=data.filter(t=>(t.detail||'').toLowerCase().includes(fn)||(t.ket||'').toLowerCase().includes(fn));
   document.getElementById('rwb').innerHTML=data.length
-    ?data.map(t=>{const total=t.harga&&t.jumlah?fmtRp(t.harga*t.jumlah):'-';return`<tr><td>${t.tanggal||'-'}</td><td>${BG[t.tipe]||t.tipe}</td><td style="color:var(--text);max-width:200px;">${t.detail||'-'}</td><td>${fmt(t.jumlah)} kg</td><td>${t.harga?fmtRp(t.harga):'-'}</td><td style="color:var(--amber);font-weight:500;">${total}</td><td>${t.ket||'-'}</td><td><button class="bt bs bsm" onclick="showEditTx('${t.id}')">Edit</button></td></tr>`;}).join('')
+    ?data.map(t=>{const total=t.harga&&t.jumlah?fmtRp(t.harga*t.jumlah):'-';return`<tr><td>${t.tanggal||'-'}</td><td>${BG[t.tipe]||t.tipe}</td><td style="color:var(--text);max-width:200px;">${t.detail||'-'}</td><td>${fmt(t.jumlah)} kg</td><td>${t.harga?fmtRp(t.harga):'-'}</td><td style="color:var(--amber);font-weight:500;">${total}</td><td>${t.ket||'-'}</td><td style="white-space:nowrap;"><button class="bt bs bsm" onclick="showEditTx('${t.id}')">Edit</button> <button class="bt bsm" style="border:1px solid rgba(224,92,92,0.4);color:var(--red);" onclick="confirmHapusTx('${t.id}')">Hapus</button></td></tr>`;}).join('')
     :'<tr><td colspan="7"><div class="es">Belum ada data</div></td></tr>';
 }
 // ── STOK AWAL ──
@@ -1505,6 +1520,108 @@ async function saveEditKeu(){
     setSy('ok');toast('Transaksi keuangan berhasil diupdate');
     closeEditKeu();rdKeu();rdLap();rdDb();
   }catch(e){setSy('er');toast('Gagal: '+e.message,'er');}
+}
+
+// ── HAPUS TRANSAKSI ──
+function closeKonfirmHapus(){
+  document.getElementById('modalKonfirmHapus').classList.remove('sh');
+  document.getElementById('btnKonfirmHapus').onclick=null;
+}
+
+function showKonfirm(pesan, stokMsg, onConfirm){
+  document.getElementById('konfirmMsg').textContent=pesan;
+  document.getElementById('konfirmStokMsg').textContent=stokMsg||'';
+  document.getElementById('btnKonfirmHapus').onclick=async()=>{
+    closeKonfirmHapus();
+    await onConfirm();
+  };
+  document.getElementById('modalKonfirmHapus').classList.add('sh');
+}
+
+// Hapus dari Riwayat (transaksi stok)
+function confirmHapusTx(id){
+  const t=D.tx.find(x=>x.id===id);if(!t)return;
+  const tipeLabel={'masuk':'Bahan Masuk','produksi':'Produksi','jp':'Minyak JP','uco_masuk':'UCO Masuk','keluar':'Penjualan','stok_awal':'Stok Awal'}[t.tipe]||t.tipe;
+  
+  // Hitung dampak stok
+  let stokMsg='';
+  if(t.tipe==='masuk') stokMsg='Stok Ampas Basah akan berkurang '+fmt(t.jumlah)+' kg';
+  else if(t.tipe==='stok_awal'){
+    const key=getStokKey(t.tipe);
+    stokMsg='Stok '+SA_NM[key]+' akan berkurang '+fmt(t.jumlah)+' kg';
+  }
+  else if(t.tipe==='jp') stokMsg='Stok Minyak JP akan berkurang '+fmt(t.jumlah)+' kg';
+  else if(t.tipe==='uco_masuk') stokMsg='Stok UCO akan berkurang '+fmt(t.jumlah)+' kg';
+  else if(t.tipe==='keluar'){
+    const key=getStokKey(t.tipe);
+    stokMsg='Stok '+SA_NM[key]+' akan bertambah kembali '+fmt(t.jumlah)+' kg';
+  }
+  else if(t.tipe==='produksi') stokMsg='Ampas +'+fmt(t.jumlah)+' kg, stok bungkil & spinner tidak berubah otomatis';
+
+  showKonfirm(
+    'Hapus transaksi '+tipeLabel+' — '+fmt(t.jumlah)+' kg pada '+t.tanggal+'?',
+    stokMsg,
+    ()=>hapusTx(id)
+  );
+}
+
+async function hapusTx(id){
+  const t=D.tx.find(x=>x.id===id);if(!t)return;
+  setSy('sy');
+  try {
+    // Balikkan stok
+    if(t.tipe==='masuk') await dbUS({ampas_basah:Math.max(0,D.stok.ampas_basah-t.jumlah)});
+    else if(t.tipe==='stok_awal'){const k=getStokKey(t.tipe);if(k)await dbUS({[k]:Math.max(0,D.stok[k]-t.jumlah)});}
+    else if(t.tipe==='jp') await dbUS({jp:Math.max(0,D.stok.jp-t.jumlah)});
+    else if(t.tipe==='uco_masuk') await dbUS({uco:Math.max(0,D.stok.uco-t.jumlah)});
+    else if(t.tipe==='keluar'){const k=getStokKey(t.tipe);if(k)await dbUS({[k]:D.stok[k]+t.jumlah});}
+    else if(t.tipe==='produksi') await dbUS({ampas_basah:D.stok.ampas_basah+t.jumlah});
+    // Hapus record
+    await api('DELETE','transaksi','id=eq.'+id);
+    D.tx=D.tx.filter(x=>x.id!==id);
+    setSy('ok');toast('Transaksi berhasil dihapus');
+    rdRw();rdDb();rdSt();
+  }catch(e){setSy('er');toast('Gagal hapus: '+e.message,'er');}
+}
+
+// Hapus dari Keuangan
+function confirmHapusKeu(id){
+  const k=D.keuangan.find(x=>x.id===id);if(!k)return;
+  const katLabel={modal_awal:'Modal Awal',penjualan:'Penjualan',bahan_baku:'Bahan Baku',operasional:'Operasional',gaji:'Gaji & Upah',transport:'Transportasi',perawatan:'Perawatan Mesin',lainnya:'Lainnya'};
+  showKonfirm(
+    'Hapus transaksi kas '+(k.jenis==='masuk'?'Masuk':'Keluar')+' — '+fmtRp(k.jumlah)+' ('+( katLabel[k.kategori]||k.kategori)+') pada '+k.tanggal+'?',
+    'Catatan kas akan disesuaikan. Stok tidak berubah.',
+    ()=>hapusKeu(id)
+  );
+}
+
+async function hapusKeu(id){
+  setSy('sy');
+  try {
+    await api('DELETE','keuangan','id=eq.'+id);
+    D.keuangan=D.keuangan.filter(x=>x.id!==id);
+    setSy('ok');toast('Transaksi keuangan berhasil dihapus');
+    rdKeu();rdLap();rdDb();
+  }catch(e){setSy('er');toast('Gagal hapus: '+e.message,'er');}
+}
+
+// Hapus dari Payroll
+function confirmHapusPay(id,nama,periode){
+  showKonfirm(
+    'Hapus data gaji '+nama+' periode '+periode+'?',
+    'Catatan payroll akan dihapus. Kas tidak disesuaikan otomatis.',
+    ()=>hapusPay(id)
+  );
+}
+
+async function hapusPay(id){
+  setSy('sy');
+  try {
+    await api('DELETE','payroll','id=eq.'+id);
+    D.payroll=D.payroll.filter(x=>x.id!==id);
+    setSy('ok');toast('Data payroll berhasil dihapus');
+    rdPayHist();
+  }catch(e){setSy('er');toast('Gagal hapus: '+e.message,'er');}
 }
 
 function expCSV(){
