@@ -412,7 +412,8 @@ tr:hover td{background:var(–amber-dim);}
         </select>
       </div>
       <div class="fg2"><label>Kategori</label>
-        <select id="keuKat">
+        <select id="keuKat" onchange="updKeuInfo()">
+          <option value="modal_awal">Modal Awal / Setoran Modal</option>
           <option value="penjualan">Penjualan Produk</option>
           <option value="bahan_baku">Pembelian Bahan Baku</option>
           <option value="operasional">Operasional (BBM, Listrik, dll)</option>
@@ -424,6 +425,9 @@ tr:hover td{background:var(–amber-dim);}
       </div>
       <div class="fg2"><label>Jumlah (Rp)</label><input type="number" id="keuJml" placeholder="0" min="0"></div>
       <div class="fg2"><label>Keterangan</label><input type="text" id="keuKet" placeholder="Wajib diisi"></div>
+    </div>
+    <div id="keuModalInfo" style="display:none;" class="ai" style="margin-bottom:12px;">
+      ✓ Modal Awal dicatat sebagai Ekuitas — tidak dihitung sebagai pendapatan di Laba Rugi.
     </div>
     <button class="bt bp" id="bkeu" onclick="saveKeu()">Simpan Transaksi</button>
   </div></div>
@@ -969,6 +973,21 @@ async function saveKeuAuto(jenis,kategori,jumlah,ket,tanggal){
     D.keuangan.unshift(Array.isArray(r)?r[0]:r);
   }catch(e){console.warn('Auto keuangan gagal:',e);}
 }
+function updKeuInfo(){
+  const kat=document.getElementById('keuKat').value;
+  const info=document.getElementById('keuModalInfo');
+  const jnsEl=document.getElementById('keuJns');
+  if(kat==='modal_awal'){
+    info.style.display='block';
+    // Modal awal selalu kas masuk
+    jnsEl.value='masuk';
+    jnsEl.disabled=true;
+  } else {
+    info.style.display='none';
+    jnsEl.disabled=false;
+  }
+}
+
 async function saveKeu(){
   const jml=parseFloat(document.getElementById('keuJml').value);
   const ket=document.getElementById('keuKet').value.trim();
@@ -1003,7 +1022,7 @@ function rdKeu(){
     <div class="sc2 g"><div class="sl">Total Masuk</div><div class="sv">${fmtRp(msk)}</div></div>
     <div class="sc2 r"><div class="sl">Total Keluar</div><div class="sv">${fmtRp(klr)}</div></div>
     <div class="sc2"><div class="sl">Saldo</div><div class="sv" style="color:${saldo>=0?'var(--green)':'var(--red)'}">${fmtRp(saldo)}</div></div>`;
-  const katLabel={penjualan:'Penjualan',bahan_baku:'Bahan Baku',operasional:'Operasional',gaji:'Gaji & Upah',transport:'Transportasi',perawatan:'Perawatan Mesin',lainnya:'Lainnya'};
+  const katLabel={modal_awal:'Modal Awal',penjualan:'Penjualan',bahan_baku:'Bahan Baku',operasional:'Operasional',gaji:'Gaji & Upah',transport:'Transportasi',perawatan:'Perawatan Mesin',lainnya:'Lainnya'};
   document.getElementById('keuTbl').innerHTML=data.length
     ?data.map(k=>`<tr><td>${k.tanggal||'-'}</td><td><span class="bg2 ${k.jenis==='masuk'?'bm':'bk'}">${k.jenis==='masuk'?'Masuk':'Keluar'}</span></td><td>${katLabel[k.kategori]||k.kategori}</td><td style="color:${k.jenis==='masuk'?'var(--green)':'var(--red)'};font-weight:500;">${fmtRp(k.jumlah)}</td><td>${k.ket||'-'}</td></tr>`).join('')
     :'<tr><td colspan="5"><div class="es">Belum ada data</div></td></tr>';
@@ -1147,6 +1166,7 @@ function rdLap(){
   if(periode==='bulan'&&bulan) keu=keu.filter(k=>k.tanggal&&k.tanggal.startsWith(bulan));
 
   const pendapatan=keu.filter(k=>k.jenis==='masuk'&&k.kategori==='penjualan').reduce((a,k)=>a+k.jumlah,0);
+  const modalAwal=keu.filter(k=>k.kategori==='modal_awal').reduce((a,k)=>a+k.jumlah,0);
   const hpp=keu.filter(k=>k.jenis==='keluar'&&k.kategori==='bahan_baku').reduce((a,k)=>a+k.jumlah,0);
   const labaKotor=pendapatan-hpp;
   const gaji=keu.filter(k=>k.jenis==='keluar'&&k.kategori==='gaji').reduce((a,k)=>a+k.jumlah,0);
@@ -1158,6 +1178,7 @@ function rdLap(){
     <div class="lr-section">
       <div class="lr-title">Pendapatan</div>
       <div class="lr-row"><span class="lrl">Penjualan Produk</span><span class="lrv pos">${fmtRp(pendapatan)}</span></div>
+      ${modalAwal>0?`<div class="lr-row"><span class="lrl" style="color:var(--text3);font-size:11px;">Modal Awal (tidak termasuk)</span><span class="lrv" style="color:var(--text3);font-size:11px;">${fmtRp(modalAwal)}</span></div>`:''}
     </div>
     <div class="lr-section">
       <div class="lr-title">Harga Pokok Produksi (HPP)</div>
@@ -1173,9 +1194,14 @@ function rdLap(){
 
   // Neraca
   const totalAset=D.stok.bungkil*0+D.stok.spinner*0+D.stok.jp*0+D.stok.uco*0; // nilai stok (tanpa harga jual kita set 0)
-  const totalKas=D.keuangan.filter(k=>k.jenis==='masuk').reduce((a,k)=>a+k.jumlah,0)-D.keuangan.filter(k=>k.jenis==='keluar').reduce((a,k)=>a+k.jumlah,0);
+  const totalKasMsk=D.keuangan.filter(k=>k.jenis==='masuk').reduce((a,k)=>a+k.jumlah,0);
+  const totalKasKlr=D.keuangan.filter(k=>k.jenis==='keluar').reduce((a,k)=>a+k.jumlah,0);
+  const totalKas=totalKasMsk-totalKasKlr;
+  const totalModalAwal=D.keuangan.filter(k=>k.kategori==='modal_awal').reduce((a,k)=>a+k.jumlah,0);
   const totalPiutang=0;
   const totalHutang=D.karyawan.reduce((a,k)=>a+(k.kasbon||0),0);
+  const labaUsaha=labaBersih;
+  const totalEkuitas=totalModalAwal+labaUsaha-totalHutang;
   document.getElementById('lapNeraca').innerHTML=`
     <div class="lr-section">
       <div class="lr-title">Aset</div>
@@ -1186,10 +1212,15 @@ function rdLap(){
       <div class="lr-title">Kewajiban</div>
       <div class="lr-row"><span class="lrl">Kasbon Karyawan</span><span class="lrv neg">-${fmtRp(totalHutang)}</span></div>
     </div>
-    <div class="lr-row total"><span class="lrl">Ekuitas (Modal Bersih)</span><span class="lrv amber">${fmtRp(totalKas-totalHutang)}</span></div>`;
+    <div class="lr-section">
+      <div class="lr-title">Ekuitas</div>
+      <div class="lr-row"><span class="lrl">Modal Awal / Setoran</span><span class="lrv pos">${fmtRp(totalModalAwal)}</span></div>
+      <div class="lr-row"><span class="lrl">Laba Usaha</span><span class="lrv ${labaUsaha>=0?'pos':'neg'}">${fmtRp(labaUsaha)}</span></div>
+    </div>
+    <div class="lr-row total"><span class="lrl">Total Ekuitas</span><span class="lrv amber">${fmtRp(totalEkuitas)}</span></div>`;
 
   // Analisis kategori
-  const katLabel={penjualan:'Penjualan',bahan_baku:'Bahan Baku',operasional:'Operasional',gaji:'Gaji & Upah',transport:'Transportasi',perawatan:'Perawatan Mesin',lainnya:'Lainnya'};
+  const katLabel={modal_awal:'Modal Awal',penjualan:'Penjualan',bahan_baku:'Bahan Baku',operasional:'Operasional',gaji:'Gaji & Upah',transport:'Transportasi',perawatan:'Perawatan Mesin',lainnya:'Lainnya'};
   const klrData=keu.filter(k=>k.jenis==='keluar');
   const katMap={};
   klrData.forEach(k=>{if(!katMap[k.kategori])katMap[k.kategori]=0;katMap[k.kategori]+=k.jumlah;});
@@ -1498,8 +1529,7 @@ function copySql(){
 
 // INIT
 document.getElementById('hd').textContent=new Date().toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-['maTgl','prTgl','jpTgl','ucTgl','keTgl','saTgl','keuTgl'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=tdy();});
-updSaSat();
+['maTgl','prTgl','jpTgl','ucTgl','keTgl','keuTgl','saTgl_ampas','saTgl_bungkil','saTgl_spinner','saTgl_jp','saTgl_uco'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=tdy();});
 document.getElementById('payBulan').value=thisMo();
 document.getElementById('lapBulan').value=thisMo();
 loadAll();
