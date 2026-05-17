@@ -437,7 +437,7 @@ tr:hover td{background:var(–amber-dim);}
     </select>
   </div></div><div class="pnb">
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;" id="keuSum"></div>
-    <div class="tw"><table><thead><tr><th>Tanggal</th><th>Jenis</th><th>Kategori</th><th>Jumlah</th><th>Keterangan</th></tr></thead><tbody id="keuTbl"></tbody></table></div>
+    <div class="tw"><table><thead><tr><th>Tanggal</th><th>Jenis</th><th>Kategori</th><th>Jumlah</th><th>Keterangan</th><th>Aksi</th></tr></thead><tbody id="keuTbl"></tbody></table></div>
   </div></div>
 </div>
 
@@ -535,22 +535,54 @@ tr:hover td{background:var(–amber-dim);}
 <div class="sc" id="sc-sa">
   <div class="ph2"><div class="st">Input Stok Awal</div><div class="ss">Masukkan stok yang sudah ada sebelum mulai pakai aplikasi</div></div>
   <div class="aw">⚠ Fitur ini langsung menambah stok tanpa mengurangi bahan baku. Gunakan hanya untuk data awal atau koreksi stok.</div>
-  <div class="pn"><div class="pnh"><div class="pnt">Tambah Stok Langsung</div></div><div class="pnb">
+
+  <div class="pn"><div class="pnh"><div class="pnt">Ampas Basah</div></div><div class="pnb">
     <div class="fg">
-      <div class="fg2"><label>Tanggal</label><input type="date" id="saTgl"></div>
-      <div class="fg2"><label>Produk</label><select id="saPrd" onchange="updSaSat()"><option value="ampas_basah">Ampas Basah</option><option value="bungkil">Bungkil</option><option value="spinner">Minyak Spinner</option><option value="jp">Minyak JP</option><option value="uco">UCO</option></select></div>
-      <div class="fg2" id="saSatBox" style="display:none;"><label id="saSatLblType">Satuan</label>
-        <select id="saSat" onchange="updSaSat()">
-          <option value="kg">Kilogram (kg)</option>
-          <option value="ember">Ember (×20 kg)</option>
-        </select>
-      </div>
-      <div class="fg2"><label id="saJmlLbl">Jumlah (kg)</label><input type="number" id="saJml" placeholder="0" min="0" step="0.1" oninput="updSaSat()"></div>
-      <div class="fg2" id="saKonBox" style="display:none;"><label>Konversi</label><div class="dv amber" id="saKonVal">—</div></div>
-      <div class="fg2 fu"><label>Keterangan</label><input type="text" id="saKet" placeholder="Contoh: Stok awal per 11 Mei 2026"></div>
+      <div class="fg2"><label>Tanggal</label><input type="date" id="saTgl_ampas"></div>
+      <div class="fg2"><label>Jumlah Ember</label><input type="number" id="saEmber" placeholder="0" min="0" step="1" oninput="updSaAmpas()"></div>
+      <div class="fg2"><label>Total kg (otomatis)</label><div class="dv" id="saAmpasKg" style="color:var(--text3);">— kg</div></div>
+      <div class="fg2 fu"><label>Keterangan</label><input type="text" id="saKet_ampas" placeholder="Opsional"></div>
     </div>
-    <button class="bt bp" id="bsa" onclick="saveSa()">Tambah Stok Awal</button>
+    <p style="font-size:11px;color:var(--text3);margin-bottom:12px;">1 ember = 20 kg</p>
+    <button class="bt bp" onclick="saveSaProduk('ampas_basah')">Tambah Stok Ampas Basah</button>
   </div></div>
+
+  <div class="pn"><div class="pnh"><div class="pnt">Bungkil</div></div><div class="pnb">
+    <div class="fg">
+      <div class="fg2"><label>Tanggal</label><input type="date" id="saTgl_bungkil"></div>
+      <div class="fg2"><label>Jumlah (kg)</label><input type="number" id="saJml_bungkil" placeholder="0" min="0" step="0.1"></div>
+      <div class="fg2 fu"><label>Keterangan</label><input type="text" id="saKet_bungkil" placeholder="Opsional"></div>
+    </div>
+    <button class="bt bp" onclick="saveSaProduk('bungkil')">Tambah Stok Bungkil</button>
+  </div></div>
+
+  <div class="pn"><div class="pnh"><div class="pnt">Minyak Spinner</div></div><div class="pnb">
+    <div class="fg">
+      <div class="fg2"><label>Tanggal</label><input type="date" id="saTgl_spinner"></div>
+      <div class="fg2"><label>Jumlah (kg)</label><input type="number" id="saJml_spinner" placeholder="0" min="0" step="0.1"></div>
+      <div class="fg2 fu"><label>Keterangan</label><input type="text" id="saKet_spinner" placeholder="Opsional"></div>
+    </div>
+    <button class="bt bp" onclick="saveSaProduk('spinner')">Tambah Stok Minyak Spinner</button>
+  </div></div>
+
+  <div class="pn"><div class="pnh"><div class="pnt">Minyak JP</div></div><div class="pnb">
+    <div class="fg">
+      <div class="fg2"><label>Tanggal</label><input type="date" id="saTgl_jp"></div>
+      <div class="fg2"><label>Jumlah (kg)</label><input type="number" id="saJml_jp" placeholder="0" min="0" step="0.1"></div>
+      <div class="fg2 fu"><label>Keterangan</label><input type="text" id="saKet_jp" placeholder="Opsional"></div>
+    </div>
+    <button class="bt bp" onclick="saveSaProduk('jp')">Tambah Stok Minyak JP</button>
+  </div></div>
+
+  <div class="pn"><div class="pnh"><div class="pnt">UCO</div></div><div class="pnb">
+    <div class="fg">
+      <div class="fg2"><label>Tanggal</label><input type="date" id="saTgl_uco"></div>
+      <div class="fg2"><label>Jumlah (kg)</label><input type="number" id="saJml_uco" placeholder="0" min="0" step="0.1"></div>
+      <div class="fg2 fu"><label>Keterangan</label><input type="text" id="saKet_uco" placeholder="Opsional"></div>
+    </div>
+    <button class="bt bp" onclick="saveSaProduk('uco')">Tambah Stok UCO</button>
+  </div></div>
+
 </div>
 
 <!-- ═══════════════════════════════ PENGATURAN ═══════════════════════════════ -->
@@ -641,6 +673,41 @@ tr:hover td{background:var(–amber-dim);}
     <div class="modal-footer">
       <button class="bt bs" onclick="closeEditTx()">Batal</button>
       <button class="bt bp" onclick="saveEditTx()">Simpan & Update Stok</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDIT KEUANGAN -->
+
+<div class="modal-overlay" id="modalEditKeu">
+  <div class="modal">
+    <div class="modal-title">Edit Transaksi Keuangan</div>
+    <div class="fg">
+      <div class="fg2"><label>Tanggal</label><input type="date" id="ekTgl"></div>
+      <div class="fg2"><label>Jenis</label>
+        <select id="ekJns">
+          <option value="masuk">Kas Masuk</option>
+          <option value="keluar">Kas Keluar</option>
+        </select>
+      </div>
+      <div class="fg2"><label>Kategori</label>
+        <select id="ekKat">
+          <option value="modal_awal">Modal Awal / Setoran Modal</option>
+          <option value="penjualan">Penjualan Produk</option>
+          <option value="bahan_baku">Pembelian Bahan Baku</option>
+          <option value="operasional">Operasional</option>
+          <option value="gaji">Gaji & Upah</option>
+          <option value="transport">Transportasi</option>
+          <option value="perawatan">Perawatan Mesin</option>
+          <option value="lainnya">Lainnya</option>
+        </select>
+      </div>
+      <div class="fg2"><label>Jumlah (Rp)</label><input type="number" id="ekJml" placeholder="0"></div>
+      <div class="fg2 fu"><label>Keterangan</label><input type="text" id="ekKet" placeholder="Keterangan"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="bt bs" onclick="closeEditKeu()">Batal</button>
+      <button class="bt bp" onclick="saveEditKeu()">Simpan Perubahan</button>
     </div>
   </div>
 </div>
@@ -1024,7 +1091,7 @@ function rdKeu(){
     <div class="sc2"><div class="sl">Saldo</div><div class="sv" style="color:${saldo>=0?'var(--green)':'var(--red)'}">${fmtRp(saldo)}</div></div>`;
   const katLabel={modal_awal:'Modal Awal',penjualan:'Penjualan',bahan_baku:'Bahan Baku',operasional:'Operasional',gaji:'Gaji & Upah',transport:'Transportasi',perawatan:'Perawatan Mesin',lainnya:'Lainnya'};
   document.getElementById('keuTbl').innerHTML=data.length
-    ?data.map(k=>`<tr><td>${k.tanggal||'-'}</td><td><span class="bg2 ${k.jenis==='masuk'?'bm':'bk'}">${k.jenis==='masuk'?'Masuk':'Keluar'}</span></td><td>${katLabel[k.kategori]||k.kategori}</td><td style="color:${k.jenis==='masuk'?'var(--green)':'var(--red)'};font-weight:500;">${fmtRp(k.jumlah)}</td><td>${k.ket||'-'}</td></tr>`).join('')
+    ?data.map(k=>`<tr><td>${k.tanggal||'-'}</td><td><span class="bg2 ${k.jenis==='masuk'?'bm':'bk'}">${k.jenis==='masuk'?'Masuk':'Keluar'}</span></td><td>${katLabel[k.kategori]||k.kategori}</td><td style="color:${k.jenis==='masuk'?'var(--green)':'var(--red)'};font-weight:500;">${fmtRp(k.jumlah)}</td><td>${k.ket||'-'}</td><td><button class="bt bs bsm" onclick="showEditKeu('${k.id}')">Edit</button></td></tr>`).join('')
     :'<tr><td colspan="5"><div class="es">Belum ada data</div></td></tr>';
 }
 
@@ -1359,6 +1426,38 @@ async function saveEditTx(){
     setSy('ok');
     toast('Transaksi & stok berhasil diupdate');
     closeEditTx();rdRw();rdDb();rdSt();
+  }catch(e){setSy('er');toast('Gagal: '+e.message,'er');}
+}
+
+let _editKeuId=null;
+function showEditKeu(id){
+  const k=D.keuangan.find(x=>x.id===id);if(!k)return;
+  _editKeuId=id;
+  document.getElementById('ekTgl').value=k.tanggal||'';
+  document.getElementById('ekJns').value=k.jenis||'masuk';
+  document.getElementById('ekKat').value=k.kategori||'lainnya';
+  document.getElementById('ekJml').value=k.jumlah||0;
+  document.getElementById('ekKet').value=k.ket||'';
+  document.getElementById('modalEditKeu').classList.add('sh');
+}
+function closeEditKeu(){document.getElementById('modalEditKeu').classList.remove('sh');_editKeuId=null;}
+async function saveEditKeu(){
+  if(!_editKeuId){toast('Data tidak ditemukan','er');return;}
+  const upd={
+    tanggal:document.getElementById('ekTgl').value,
+    jenis:document.getElementById('ekJns').value,
+    kategori:document.getElementById('ekKat').value,
+    jumlah:parseFloat(document.getElementById('ekJml').value)||0,
+    ket:document.getElementById('ekKet').value
+  };
+  if(!upd.jumlah||upd.jumlah<=0){toast('Jumlah harus diisi','er');return;}
+  setSy('sy');
+  try {
+    await api('PATCH','keuangan','id=eq.'+_editKeuId,upd);
+    const idx=D.keuangan.findIndex(x=>x.id===_editKeuId);
+    if(idx>=0) D.keuangan[idx]={...D.keuangan[idx],...upd};
+    setSy('ok');toast('Transaksi keuangan berhasil diupdate');
+    closeEditKeu();rdKeu();rdLap();rdDb();
   }catch(e){setSy('er');toast('Gagal: '+e.message,'er');}
 }
 
